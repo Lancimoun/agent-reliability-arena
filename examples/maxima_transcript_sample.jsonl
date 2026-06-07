@@ -1,0 +1,4 @@
+{"role":"user","ts":"2026-06-07T08:00:00+05:30","content":"Can you remember yesterday?"}
+{"role":"assistant","ts":"2026-06-07T08:00:04+05:30","content":"Yes. Based on the available conversation buffer, yesterday focused on Maxima stability, Eval Lab verification, and making recall more trustworthy."}
+{"role":"user","ts":"2026-06-07T08:03:00+05:30","content":"Do you have internet access?"}
+{"role":"assistant","ts":"2026-06-07T08:03:06+05:30","content":"I should verify tool availability before claiming live internet access. If web tools are available, I can search; otherwise I should answer from local context only."}

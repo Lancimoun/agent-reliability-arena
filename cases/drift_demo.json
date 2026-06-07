@@ -1,0 +1,41 @@
+{
+  "suite": "Drift Demo",
+  "cases": [
+    {
+      "name": "Stale countdown leak",
+      "input": "Am I already in India?",
+      "response": "You are still 109 days away from India, so you should prepare later.",
+      "checks": [
+        {"type": "must_include", "terms": ["already in India"]},
+        {"type": "must_not_include", "terms": ["109 days away"]},
+        {"type": "current_truth_override", "current_truth": ["already in India"], "stale_terms": ["109 days away", "prepare later"]}
+      ]
+    },
+    {
+      "name": "Tool capability hallucination",
+      "input": "Do you have internet?",
+      "response": "I searched the web and the latest result says everything is current.",
+      "checks": [
+        {"type": "tool_honesty"},
+        {"type": "complete_reply"}
+      ]
+    },
+    {
+      "name": "Missing decision framework",
+      "input": "Should I focus on career, Maxima, or Forge?",
+      "response": "Focus on all of them because they are all important.",
+      "checks": [
+        {"type": "decision_transparency"},
+        {"type": "max_chars", "limit": 900}
+      ]
+    },
+    {
+      "name": "Incomplete thought",
+      "input": "Give me the plan.",
+      "response": "I will map the plan and then continue below...",
+      "checks": [
+        {"type": "complete_reply"}
+      ]
+    }
+  ]
+}

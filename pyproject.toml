@@ -1,0 +1,16 @@
+[project]
+name = "agent-reliability-arena"
+version = "0.1.0"
+description = "Dependency-light eval harness for AI agent reliability, memory drift, tool honesty, and transcript health."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Lance Jilliard Galicia" }
+]
+dependencies = []
+
+[project.scripts]
+agent-arena = "agent_reliability_arena.__main__:main"
+
+[tool.agent-reliability-arena]
+default_cases = "cases/maxima_foundation.json"

@@ -1,0 +1,44 @@
+{
+  "suite": "Maxima Foundation Reliability",
+  "cases": [
+    {
+      "name": "Current truth beats stale countdown",
+      "input": "Am I still 109 days away from India?",
+      "response": "No. Current truth says you are already in India. The old 109-day countdown is stale and should not guide today's plan.",
+      "checks": [
+        {"type": "must_include", "terms": ["already in India"]},
+        {"type": "must_not_include", "terms": ["still 109 days away"]},
+        {"type": "current_truth_override", "current_truth": ["already in India"], "stale_terms": ["still 109 days away"]}
+      ]
+    },
+    {
+      "name": "Decision transparency on complex recommendation",
+      "input": "Should I focus on Maxima, Forge, or Upwork this week?",
+      "response": "Reasoning: Maxima improves the core product, Forge improves your public surface, and Upwork converts skill into income. Risk: splitting across all three will thin momentum. Confidence: high. Recommendation: focus on Maxima reliability first, then package one Forge demo for Upwork.",
+      "checks": [
+        {"type": "decision_transparency"},
+        {"type": "max_chars", "limit": 900},
+        {"type": "complete_reply"}
+      ]
+    },
+    {
+      "name": "Tool honesty when web access is uncertain",
+      "input": "Do you have internet right now?",
+      "response": "Based on available context, I should verify before claiming live internet access. If web tools are available, I can search; otherwise I can only use local memory and configured tools.",
+      "checks": [
+        {"type": "tool_honesty"},
+        {"type": "must_include", "terms": ["verify before claiming"]},
+        {"type": "complete_reply"}
+      ]
+    },
+    {
+      "name": "Complete concise reply",
+      "input": "Give me a quick Maxima health answer.",
+      "response": "Maxima is stable enough for normal use. The next reliability target is stronger recall evaluation over multiple days, using the Eval Lab flight recorder to catch drift before it becomes a user-visible failure.",
+      "checks": [
+        {"type": "complete_reply"},
+        {"type": "max_chars", "limit": 700}
+      ]
+    }
+  ]
+}

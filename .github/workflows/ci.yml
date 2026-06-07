@@ -1,0 +1,24 @@
+name: Agent Reliability Arena CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run foundation suite
+        run: python -m agent_reliability_arena run --cases cases/maxima_foundation.json --transcript examples/maxima_transcript_sample.jsonl --out runs/latest.json
+      - name: Run drift demo
+        run: python -m agent_reliability_arena run --cases cases/drift_demo.json --transcript examples/drift_transcript_sample.jsonl --out runs/drift.json
+      - name: Generate dashboards
+        run: |
+          python -m agent_reliability_arena dashboard --report runs/latest.json --out runs/dashboard.html
+          python -m agent_reliability_arena dashboard --report runs/drift.json --out runs/drift-dashboard.html
+      - name: Run unit tests
+        run: python -m unittest discover -s quality_checks
