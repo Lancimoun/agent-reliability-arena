@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Reliability Arena</title>
+  <meta name="description" content="A dependency-light eval harness for AI agent memory drift, tool honesty, current-truth override, and transcript health.">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #071018;
+      color: #f8fafc;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+    }
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(34, 211, 238, .16), transparent 32%),
+        radial-gradient(circle at 88% 10%, rgba(249, 115, 22, .13), transparent 30%),
+        radial-gradient(circle at 60% 100%, rgba(52, 211, 153, .10), transparent 34%);
+      pointer-events: none;
+    }
+    main {
+      position: relative;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 42px 20px 70px;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 56px;
+    }
+    .brand {
+      color: #22d3ee;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .navlinks {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    a {
+      color: inherit;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(148, 163, 184, .25);
+      border-radius: 10px;
+      padding: 10px 13px;
+      color: #f8fafc;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+      background: rgba(15, 23, 42, .62);
+    }
+    .btn.primary {
+      border: 0;
+      color: #031018;
+      background: linear-gradient(135deg, #22d3ee, #34d399, #f97316);
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(360px, 1.05fr);
+      gap: 34px;
+      align-items: center;
+    }
+    .eyebrow {
+      color: #34d399;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    h1 {
+      margin: 12px 0 18px;
+      max-width: 720px;
+      font-size: clamp(46px, 8vw, 92px);
+      line-height: .9;
+      letter-spacing: 0;
+    }
+    .lead {
+      color: #cbd5e1;
+      max-width: 720px;
+      font-size: 19px;
+      line-height: 1.6;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .screenshot {
+      border: 1px solid rgba(148, 163, 184, .2);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0f172a;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, .38);
+    }
+    .screenshot img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 42px 0 18px;
+    }
+    .metric {
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(15, 23, 42, .68);
+    }
+    .metric strong {
+      display: block;
+      font-size: 34px;
+    }
+    .metric span {
+      display: block;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .panel {
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 14px;
+      padding: 20px;
+      background: rgba(15, 23, 42, .68);
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+    .panel p,
+    .panel li {
+      color: #cbd5e1;
+      line-height: 1.65;
+    }
+    .panel ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    code {
+      color: #86efac;
+      background: rgba(2, 6, 23, .75);
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+    pre {
+      overflow: auto;
+      margin: 12px 0 0;
+      padding: 14px;
+      border-radius: 10px;
+      background: #020617;
+      border: 1px solid rgba(148, 163, 184, .16);
+      color: #d1fae5;
+      line-height: 1.55;
+    }
+    footer {
+      color: #64748b;
+      font-size: 12px;
+      text-align: center;
+      margin-top: 28px;
+    }
+    @media (max-width: 900px) {
+      nav,
+      .hero,
+      .section {
+        display: block;
+      }
+      .navlinks,
+      .hero-actions {
+        justify-content: flex-start;
+      }
+      .screenshot,
+      .panel {
+        margin-top: 16px;
+      }
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 560px) {
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <nav>
+    <div class="brand">Agent Reliability Arena</div>
+    <div class="navlinks">
+      <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/case_study.md">Case Study</a>
+      <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena">GitHub</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">AI Agent Evaluation</div>
+      <h1>Trust agents by testing them.</h1>
+      <p class="lead">A dependency-light eval harness for memory drift, stale facts, tool honesty, current-truth override, incomplete replies, and transcript health.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="https://github.com/Lancimoun/agent-reliability-arena">View Repo</a>
+        <a class="btn" href="#quickstart">Run Locally</a>
+      </div>
+    </div>
+    <div class="screenshot">
+      <img src="assets/dashboard.png" alt="Agent Reliability Arena dashboard screenshot">
+    </div>
+  </section>
+
+  <section class="metrics">
+    <div class="metric"><strong>100</strong><span>Foundation Score</span></div>
+    <div class="metric"><strong>40</strong><span>Drift Demo Score</span></div>
+    <div class="metric"><strong>0</strong><span>Paid APIs</span></div>
+    <div class="metric"><strong>4</strong><span>Unit Tests</span></div>
+  </section>
+
+  <section class="section">
+    <div class="panel">
+      <h2>What It Catches</h2>
+      <ul>
+        <li>Stale memory leaks stated as current truth</li>
+        <li>Unsupported claims of web or live tool access</li>
+        <li>Incomplete replies and dangling thoughts</li>
+        <li>Missing reasoning on complex recommendations</li>
+        <li>Transcript-level drift and answer bloat</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Why It Matters</h2>
+      <p>Agent demos are easy. Reliable agents need repeatable checks, failure-path examples, and evidence that quality is improving instead of drifting.</p>
+      <p>This project came from hardening Project Maxima, a persistent AI journal partner and memory system.</p>
+    </div>
+  </section>
+
+  <section class="section" id="quickstart">
+    <div class="panel">
+      <h2>Quick Start</h2>
+      <pre>python -m agent_reliability_arena run --cases cases/maxima_foundation.json --transcript examples/maxima_transcript_sample.jsonl --out runs/latest.json
+python -m agent_reliability_arena dashboard --report runs/latest.json --out runs/dashboard.html</pre>
+    </div>
+    <div class="panel">
+      <h2>Proof</h2>
+      <p>Foundation suite passes cleanly at <code>100/100</code>. The intentional drift demo drops to <code>40/100</code>, proving the arena catches failures instead of only celebrating happy paths.</p>
+    </div>
+  </section>
+
+  <footer>
+    Built by Lance Jilliard Galicia. Public portfolio repo for AI agent evaluation and reliability.
+  </footer>
+</main>
+</body>
+</html>

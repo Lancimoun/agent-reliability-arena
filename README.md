@@ -2,6 +2,8 @@
 
 Agent Reliability Arena is a small, dependency-light evaluation harness for AI agents.
 
+[Live demo](https://lancimoun.github.io/agent-reliability-arena/) | [Case study](docs/case_study.md)
+
 ![Agent Reliability Arena dashboard](docs/assets/dashboard.png)
 
 It tests the practical failures that make agent products feel unreliable:
