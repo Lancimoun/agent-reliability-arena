@@ -220,6 +220,7 @@
     <div class="brand">Agent Reliability Arena</div>
     <div class="navlinks">
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/case_study.md">Case Study</a>
+      <a class="btn" href="maxima-trend.html">Maxima Trend</a>
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena">GitHub</a>
     </div>
   </nav>
@@ -231,6 +232,7 @@
       <p class="lead">A dependency-light eval harness for memory drift, stale facts, tool honesty, current-truth override, incomplete replies, and transcript health.</p>
       <div class="hero-actions">
         <a class="btn primary" href="https://github.com/Lancimoun/agent-reliability-arena">View Repo</a>
+        <a class="btn" href="maxima-trend.html">View Maxima Trend</a>
         <a class="btn" href="#quickstart">Run Locally</a>
       </div>
     </div>
@@ -243,7 +245,7 @@
     <div class="metric"><strong>100</strong><span>Foundation Score</span></div>
     <div class="metric"><strong>40</strong><span>Drift Demo Score</span></div>
     <div class="metric"><strong>0</strong><span>Paid APIs</span></div>
-    <div class="metric"><strong>4</strong><span>Unit Tests</span></div>
+    <div class="metric"><strong>5</strong><span>Unit Tests</span></div>
   </section>
 
   <section class="section">
@@ -273,6 +275,18 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
     <div class="panel">
       <h2>Proof</h2>
       <p>Foundation suite passes cleanly at <code>100/100</code>. The intentional drift demo drops to <code>40/100</code>, proving the arena catches failures instead of only celebrating happy paths.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="panel">
+      <h2>Maxima Daily Trend</h2>
+      <p>The Arena can import Maxima's private Eval Lab, strip token URLs, append compact daily trend rows, and publish a static dashboard.</p>
+      <p><a class="btn" href="maxima-trend.html">Open trend dashboard</a></p>
+    </div>
+    <div class="panel">
+      <h2>Automation</h2>
+      <p>The scheduled GitHub Action runs at <code>09:00 IST</code> when <code>MAXIMA_SYNC_SECRET</code> is configured in repo secrets.</p>
     </div>
   </section>
 

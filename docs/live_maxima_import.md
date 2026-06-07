@@ -35,6 +35,25 @@ python -m agent_reliability_arena trend-dashboard --trend runs/maxima-trend.json
 
 Trend rows are intentionally small: run id, generated time, Arena score, source score, verdict, pass/warn/fail counts, and token-stripped source URL. They do not store raw memory, query tokens, or the full private payload.
 
+## GitHub Actions Automation
+
+The repository includes a scheduled workflow named `Maxima Reliability Trend`.
+
+To activate it:
+
+1. Open the GitHub repo settings.
+2. Go to `Secrets and variables` -> `Actions`.
+3. Add a repository secret named `MAXIMA_SYNC_SECRET`.
+4. Paste the same sync secret used by Maxima's private `/eval-lab.json` endpoint.
+5. Run the workflow manually once from the `Actions` tab, or wait for the daily schedule.
+
+The workflow runs at `09:00 IST` and updates:
+
+- `docs/maxima-trend.json`
+- `docs/maxima-trend.html`
+
+If the secret is not configured, the workflow exits safely without importing live Maxima telemetry.
+
 ## Import From A Full URL
 
 Use this only locally:

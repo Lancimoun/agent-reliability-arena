@@ -1,0 +1,76 @@
+name: Maxima Reliability Trend
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * *" # 09:00 IST
+
+permissions:
+  contents: write
+
+jobs:
+  update-trend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check Maxima secret
+        id: maxima-secret
+        env:
+          SYNC_SECRET: ${{ secrets.MAXIMA_SYNC_SECRET }}
+        run: |
+          if [ -z "$SYNC_SECRET" ]; then
+            echo "MAXIMA_SYNC_SECRET is not configured. Skipping live Maxima import."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Import Maxima Eval Lab
+        if: steps.maxima-secret.outputs.skip != 'true'
+        env:
+          SYNC_SECRET: ${{ secrets.MAXIMA_SYNC_SECRET }}
+        run: |
+          python -m agent_reliability_arena import-maxima \
+            --out runs/maxima-live.json \
+            --trend-out docs/maxima-trend.json
+
+      - name: Build trend dashboard
+        if: steps.maxima-secret.outputs.skip != 'true'
+        run: |
+          python -m agent_reliability_arena trend-dashboard \
+            --trend docs/maxima-trend.json \
+            --out docs/maxima-trend.html
+
+      - name: Verify no sync token persisted
+        if: steps.maxima-secret.outputs.skip != 'true'
+        env:
+          SYNC_SECRET: ${{ secrets.MAXIMA_SYNC_SECRET }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          secret = os.environ.get("SYNC_SECRET", "")
+          haystack = "\n".join(
+              p.read_text(encoding="utf-8", errors="ignore")
+              for p in [Path("docs/maxima-trend.json"), Path("docs/maxima-trend.html")]
+              if p.exists()
+          )
+          if secret and secret in haystack:
+              raise SystemExit("Secret leaked into trend artifacts.")
+          print("Trend artifacts are token-safe.")
+          PY
+
+      - name: Commit trend update
+        if: steps.maxima-secret.outputs.skip != 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update Maxima reliability trend"
+          file_pattern: docs/maxima-trend.json docs/maxima-trend.html
