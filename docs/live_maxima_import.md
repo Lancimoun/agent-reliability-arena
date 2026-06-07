@@ -23,6 +23,18 @@ python -m agent_reliability_arena dashboard --report runs/maxima-live.json --out
 
 The stored report records only the source path, not the query token.
 
+## Daily Trend
+
+Use `--trend-out` when you want each live import to update a compact reliability history:
+
+```powershell
+$env:SYNC_SECRET = "your-secret-here"
+python -m agent_reliability_arena import-maxima --out runs/maxima-live.json --trend-out runs/maxima-trend.json
+python -m agent_reliability_arena trend-dashboard --trend runs/maxima-trend.json --out runs/maxima-trend.html
+```
+
+Trend rows are intentionally small: run id, generated time, Arena score, source score, verdict, pass/warn/fail counts, and token-stripped source URL. They do not store raw memory, query tokens, or the full private payload.
+
 ## Import From A Full URL
 
 Use this only locally:
@@ -40,6 +52,7 @@ Do not commit or screenshot the full token URL.
 - Live transcript health checks
 - Maxima quality score when available
 - Maxima history summary when available
+- Compact daily trend rows when `--trend-out` is used
 
 ## What Does Not Get Imported
 

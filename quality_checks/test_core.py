@@ -3,7 +3,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agent_reliability_arena.core import evaluate_case, generate_dashboard, report_from_maxima_payload, run_arena
+from agent_reliability_arena.core import (
+    append_trend,
+    evaluate_case,
+    generate_dashboard,
+    generate_trend_dashboard,
+    load_trend,
+    report_from_maxima_payload,
+    run_arena,
+)
 
 
 class CoreTests(unittest.TestCase):
@@ -74,6 +82,33 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(report["summary"]["source_quality_score"], 96)
         self.assertEqual(report["source"]["url"], "https://example.test/eval-lab.json")
         self.assertNotIn("secret", json.dumps(report))
+
+    def test_trend_append_is_compact_and_dashboard_renders(self):
+        payload = {
+            "eval_lab": "PASS **Current truth beats stale memory** - ok",
+            "canary": "PASS **Private cloud guard** - ok",
+            "snapshot": {"quality": 96, "status": "ready"},
+            "transcript": {
+                "checks": [
+                    {"name": "Transcript buffer present", "status": "pass", "detail": "ok"}
+                ],
+                "metrics": {"entries": 4},
+            },
+        }
+        report = report_from_maxima_payload(
+            payload,
+            source_url="https://example.test/eval-lab.json?token=secret",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            trend_path = Path(tmp) / "trend.json"
+            trend = append_trend(report, trend_path)
+            trend = append_trend(report, trend_path)
+            loaded = load_trend(trend_path)
+            html = generate_trend_dashboard(trend)
+            self.assertEqual(len(loaded["entries"]), 1)
+            self.assertIn("Daily Reliability Trend", html)
+            self.assertNotIn("secret", json.dumps(loaded))
+            self.assertEqual(loaded["entries"][0]["source_url"], "https://example.test/eval-lab.json")
 
 
 if __name__ == "__main__":

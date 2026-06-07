@@ -372,6 +372,57 @@ def import_maxima_report(
     return report_from_maxima_payload(payload, source_url=target)
 
 
+def trend_entry_from_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Extract a compact, public-safe daily trend row from an Arena report."""
+    summary = report.get("summary", {}) or {}
+    source = report.get("source", {}) or {}
+    snapshot = source.get("snapshot", {}) or {}
+    return {
+        "run_id": str(report.get("run_id", "")),
+        "generated_at": str(report.get("generated_at", "")),
+        "quality_score": summary.get("quality_score"),
+        "source_quality_score": summary.get("source_quality_score"),
+        "verdict": summary.get("verdict", "unknown"),
+        "pass": summary.get("pass", 0),
+        "warn": summary.get("warn", 0),
+        "fail": summary.get("fail", 0),
+        "source_type": source.get("type", ""),
+        "source_url": source.get("url", ""),
+        "source_status": snapshot.get("status", ""),
+        "source_quality": snapshot.get("quality"),
+    }
+
+
+def _trend_sort_key(row: dict[str, Any]) -> str:
+    return str(row.get("generated_at") or row.get("run_id") or "")
+
+
+def load_trend(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {"generated_at": _now_iso(), "entries": []}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(data, list):
+        return {"generated_at": _now_iso(), "entries": data}
+    if isinstance(data, dict):
+        data.setdefault("entries", [])
+        return data
+    raise ValueError("Trend file must be a JSON object or list.")
+
+
+def append_trend(report: dict[str, Any], trend_path: Path) -> dict[str, Any]:
+    """Append a report summary to a trend file, deduping by run_id."""
+    trend = load_trend(trend_path)
+    entry = trend_entry_from_report(report)
+    entries = [row for row in trend.get("entries", []) if row.get("run_id") != entry.get("run_id")]
+    entries.append(entry)
+    entries.sort(key=_trend_sort_key)
+    trend["generated_at"] = _now_iso()
+    trend["entries"] = entries
+    trend_path.parent.mkdir(parents=True, exist_ok=True)
+    trend_path.write_text(json.dumps(trend, indent=2, ensure_ascii=False), encoding="utf-8")
+    return trend
+
+
 def _status_class(status: str) -> str:
     return status if status in {PASS, WARN, FAIL} else WARN
 
@@ -434,6 +485,87 @@ def generate_dashboard(report: dict[str, Any]) -> str:
 {''.join(case_cards)}
 </section>
 <footer>Run {html.escape(report.get('run_id', ''))} generated {html.escape(report.get('generated_at', ''))}. Verdict: {html.escape(summary.get('verdict', 'unknown'))}.</footer>
+</main>
+</body>
+</html>"""
+
+
+def generate_trend_dashboard(trend: dict[str, Any]) -> str:
+    entries = list(trend.get("entries", []) or [])
+    latest = entries[-1] if entries else {}
+    quality_values = [
+        int(row.get("quality_score") or 0)
+        for row in entries
+        if row.get("quality_score") is not None
+    ]
+    avg_quality = round(statistics.mean(quality_values)) if quality_values else 0
+    high_quality = max(quality_values) if quality_values else 0
+    latest_quality = latest.get("quality_score", 0)
+    rows = []
+    points = []
+    for idx, row in enumerate(entries):
+        quality = int(row.get("quality_score") or 0)
+        source_quality = row.get("source_quality_score")
+        verdict = html.escape(str(row.get("verdict", "unknown")))
+        status = "pass" if quality >= 90 else "warn" if quality >= 70 else "fail"
+        generated = html.escape(str(row.get("generated_at", "")))
+        rows.append(
+            "<tr>"
+            f"<td>{generated}</td>"
+            f"<td><span class='pill {status}'>{quality}</span></td>"
+            f"<td>{html.escape(str(source_quality if source_quality is not None else ''))}</td>"
+            f"<td>{verdict}</td>"
+            f"<td>{int(row.get('pass', 0))}</td>"
+            f"<td>{int(row.get('warn', 0))}</td>"
+            f"<td>{int(row.get('fail', 0))}</td>"
+            "</tr>"
+        )
+        x = 6 + idx * (88 / max(1, len(entries) - 1))
+        y = 94 - quality * 0.82
+        points.append(f"{x:.2f},{y:.2f}")
+    polyline = " ".join(points)
+    empty_note = "" if entries else "<p class='lead'>No trend entries yet. Run import-maxima with --trend-out to start the daily record.</p>"
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maxima Reliability Trend</title>
+<style>
+*{{box-sizing:border-box}}body{{margin:0;background:#071018;color:#f8fafc;font-family:Inter,Segoe UI,Arial,sans-serif}}main{{max-width:1100px;margin:0 auto;padding:38px 20px 60px}}.eyebrow{{color:#22d3ee;text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:800}}h1{{font-size:clamp(34px,7vw,72px);line-height:.96;margin:10px 0 14px}}.lead{{color:#cbd5e1;font-size:18px;max-width:760px;line-height:1.6}}.metrics{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}}.metric{{background:#0f172a;border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:16px}}.metric strong{{display:block;font-size:34px}}.metric span{{display:block;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;font-size:11px}}.panel{{background:#0b1220;border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:18px;margin-top:14px}}svg{{width:100%;height:260px;background:#08111d;border-radius:10px;border:1px solid rgba(148,163,184,.18)}}polyline{{fill:none;stroke:#34d399;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}}.gridline{{stroke:rgba(148,163,184,.22);stroke-width:.6}}table{{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}}th,td{{border-bottom:1px solid rgba(148,163,184,.18);padding:10px;text-align:left}}th{{color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;font-size:11px}}.pill{{display:inline-block;min-width:48px;text-align:center;border-radius:999px;padding:4px 8px;font-weight:800}}.pill.pass{{background:#064e3b;color:#86efac}}.pill.warn{{background:#713f12;color:#fde68a}}.pill.fail{{background:#7f1d1d;color:#fca5a5}}footer{{color:#64748b;text-align:center;margin-top:28px;font-size:12px}}@media(max-width:760px){{.metrics{{grid-template-columns:1fr 1fr}}table{{font-size:12px}}}}
+</style>
+</head>
+<body>
+<main>
+<section>
+<div class="eyebrow">Project Maxima</div>
+<h1>Daily Reliability Trend</h1>
+<p class="lead">A compact history of Maxima's Arena score, source quality, warnings, and failures. This makes drift visible before it turns into a user-visible bug.</p>
+</section>
+<section class="metrics">
+<div class="metric"><strong>{latest_quality}</strong><span>Latest</span></div>
+<div class="metric"><strong>{avg_quality}</strong><span>Average</span></div>
+<div class="metric"><strong>{high_quality}</strong><span>Best</span></div>
+<div class="metric"><strong>{len(entries)}</strong><span>Runs</span></div>
+</section>
+<section class="panel">
+<h2>Quality Over Time</h2>
+{empty_note}
+<svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Maxima reliability quality trend">
+<line class="gridline" x1="0" y1="12" x2="100" y2="12"></line>
+<line class="gridline" x1="0" y1="53" x2="100" y2="53"></line>
+<line class="gridline" x1="0" y1="94" x2="100" y2="94"></line>
+<polyline points="{html.escape(polyline)}"></polyline>
+</svg>
+</section>
+<section class="panel">
+<h2>Runs</h2>
+<table>
+<thead><tr><th>Generated</th><th>Arena</th><th>Source</th><th>Verdict</th><th>Pass</th><th>Warn</th><th>Fail</th></tr></thead>
+<tbody>{''.join(rows)}</tbody>
+</table>
+</section>
+<footer>Trend generated {html.escape(str(trend.get('generated_at', '')))}. Public-safe rows only; no sync tokens are stored.</footer>
 </main>
 </body>
 </html>"""

@@ -29,6 +29,7 @@ Agent Reliability Arena gives you:
 - quality scores
 - JSON reports
 - a static HTML dashboard
+- daily trend JSON and a static trend dashboard
 - no paid APIs required
 
 ## Quick Start
@@ -70,6 +71,14 @@ python -m agent_reliability_arena dashboard --report runs/maxima-live.json --out
 ```
 
 See [Live Maxima Import](docs/live_maxima_import.md) for privacy notes.
+
+Append live Maxima imports into a daily trend:
+
+```powershell
+$env:SYNC_SECRET = "your-secret-here"
+python -m agent_reliability_arena import-maxima --out runs/maxima-live.json --trend-out runs/maxima-trend.json
+python -m agent_reliability_arena trend-dashboard --trend runs/maxima-trend.json --out runs/maxima-trend.html
+```
 
 Run the intentional drift demo:
 

@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .core import generate_dashboard, import_maxima_report, run_arena
+from .core import append_trend, generate_dashboard, generate_trend_dashboard, import_maxima_report, load_trend, run_arena
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -29,6 +29,11 @@ def _build_parser() -> argparse.ArgumentParser:
     maxima.add_argument("--token", help="Sync token. Prefer --token-env for privacy.")
     maxima.add_argument("--token-env", default="SYNC_SECRET", help="Environment variable containing the sync token.")
     maxima.add_argument("--out", required=True, help="Output Arena report JSON path.")
+    maxima.add_argument("--trend-out", help="Optional trend JSON path to append a compact daily row.")
+
+    trend = sub.add_parser("trend-dashboard", help="Generate static HTML dashboard from a trend JSON file.")
+    trend.add_argument("--trend", required=True, help="Trend JSON path created by import-maxima --trend-out.")
+    trend.add_argument("--out", required=True, help="Output trend dashboard HTML path.")
 
     return parser
 
@@ -70,12 +75,25 @@ def main() -> None:
         out = Path(args.out)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+        if args.trend_out:
+            append_trend(report, Path(args.trend_out))
         summary = report["summary"]
         print(
             "Imported Maxima Eval Lab: "
             f"{summary['pass']} pass / {summary['warn']} warn / {summary['fail']} fail "
             f"- quality {summary['quality_score']}/100"
         )
+        if args.trend_out:
+            print(f"Trend updated at {args.trend_out}")
+        return
+
+    if args.command == "trend-dashboard":
+        trend = load_trend(Path(args.trend))
+        html = generate_trend_dashboard(trend)
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(html, encoding="utf-8")
+        print(f"Trend dashboard written to {out}")
         return
 
     parser.error(f"Unknown command: {args.command}")
