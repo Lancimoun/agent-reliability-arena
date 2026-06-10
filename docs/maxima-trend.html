@@ -5,19 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maxima Reliability Trend</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#071018;color:#f8fafc;font-family:Inter,Segoe UI,Arial,sans-serif}main{max-width:980px;margin:0 auto;padding:42px 20px 70px}.eyebrow{color:#22d3ee;text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:900}h1{font-size:clamp(38px,8vw,78px);line-height:.96;margin:12px 0 18px}.lead{color:#cbd5e1;font-size:18px;max-width:760px;line-height:1.6}.panel{background:#0b1220;border:1px solid rgba(148,163,184,.18);border-radius:14px;padding:20px;margin-top:20px}.btn{display:inline-flex;align-items:center;border:1px solid rgba(148,163,184,.25);border-radius:10px;padding:10px 13px;color:#f8fafc;text-decoration:none;font-size:13px;font-weight:800;background:rgba(15,23,42,.62)}code{color:#86efac;background:rgba(2,6,23,.75);border:1px solid rgba(148,163,184,.16);border-radius:6px;padding:2px 6px}
+*{box-sizing:border-box}body{margin:0;background:#071018;color:#f8fafc;font-family:Inter,Segoe UI,Arial,sans-serif}main{max-width:1100px;margin:0 auto;padding:38px 20px 60px}.eyebrow{color:#22d3ee;text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:800}h1{font-size:clamp(34px,7vw,72px);line-height:.96;margin:10px 0 14px}.lead{color:#cbd5e1;font-size:18px;max-width:760px;line-height:1.6}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}.metric{background:#0f172a;border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:16px}.metric strong{display:block;font-size:34px}.metric span{display:block;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;font-size:11px}.panel{background:#0b1220;border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:18px;margin-top:14px}svg{width:100%;height:260px;background:#08111d;border-radius:10px;border:1px solid rgba(148,163,184,.18)}polyline{fill:none;stroke:#34d399;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.gridline{stroke:rgba(148,163,184,.22);stroke-width:.6}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{border-bottom:1px solid rgba(148,163,184,.18);padding:10px;text-align:left}th{color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;font-size:11px}.pill{display:inline-block;min-width:48px;text-align:center;border-radius:999px;padding:4px 8px;font-weight:800}.pill.pass{background:#064e3b;color:#86efac}.pill.warn{background:#713f12;color:#fde68a}.pill.fail{background:#7f1d1d;color:#fca5a5}footer{color:#64748b;text-align:center;margin-top:28px;font-size:12px}@media(max-width:760px){.metrics{grid-template-columns:1fr 1fr}table{font-size:12px}}
 </style>
 </head>
 <body>
 <main>
+<section>
 <div class="eyebrow">Project Maxima</div>
 <h1>Daily Reliability Trend</h1>
-<p class="lead">The trend dashboard is ready, but no live Maxima imports have been published yet.</p>
-<section class="panel">
-<p>Configure the GitHub secret <code>MAXIMA_SYNC_SECRET</code>, then run the <code>Maxima Reliability Trend</code> workflow manually once. After that, it will refresh daily at <code>09:00 IST</code>.</p>
-<p>The workflow stores compact public-safe rows only: score, verdict, pass/warn/fail counts, timestamp, and token-stripped source URL.</p>
-<p><a class="btn" href="./">Back to Arena</a></p>
+<p class="lead">A compact history of Maxima's Arena score, source quality, warnings, and failures. This makes drift visible before it turns into a user-visible bug.</p>
 </section>
+<section class="metrics">
+<div class="metric"><strong>83</strong><span>Latest</span></div>
+<div class="metric"><strong>83</strong><span>Average</span></div>
+<div class="metric"><strong>83</strong><span>Best</span></div>
+<div class="metric"><strong>1</strong><span>Runs</span></div>
+</section>
+<section class="panel">
+<h2>Quality Over Time</h2>
+
+<svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Maxima reliability quality trend">
+<line class="gridline" x1="0" y1="12" x2="100" y2="12"></line>
+<line class="gridline" x1="0" y1="53" x2="100" y2="53"></line>
+<line class="gridline" x1="0" y1="94" x2="100" y2="94"></line>
+<polyline points="6.00,25.94"></polyline>
+</svg>
+</section>
+<section class="panel">
+<h2>Runs</h2>
+<table>
+<thead><tr><th>Generated</th><th>Arena</th><th>Source</th><th>Verdict</th><th>Pass</th><th>Warn</th><th>Fail</th></tr></thead>
+<tbody><tr><td>2026-06-10T11:26:33+00:00</td><td><span class='pill warn'>83</span></td><td>98</td><td>ship</td><td>2</td><td>1</td><td>0</td></tr></tbody>
+</table>
+</section>
+<footer>Trend generated 2026-06-10T11:26:33+00:00. Public-safe rows only; no sync tokens are stored.</footer>
 </main>
 </body>
 </html>
