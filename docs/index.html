@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Agent Reliability Arena</title>
   <meta name="description" content="A dependency-light eval harness for AI agent memory drift, tool honesty, current-truth override, and transcript health.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Agent Reliability Arena — trust agents by testing them">
+  <meta property="og:description" content="An eval harness that catches stale memory, unsupported tool claims, incomplete replies, and transcript drift — with live daily scores from a deployed agent.">
+  <meta property="og:url" content="https://lancimoun.github.io/agent-reliability-arena/">
+  <meta property="og:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/dashboard.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Agent Reliability Arena — trust agents by testing them">
+  <meta name="twitter:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/dashboard.png">
   <style>
     * { box-sizing: border-box; }
     body {
@@ -244,8 +252,8 @@
   <section class="metrics">
     <div class="metric"><strong>100</strong><span>Foundation Score</span></div>
     <div class="metric"><strong>40</strong><span>Drift Demo Score</span></div>
-    <div class="metric"><strong>0</strong><span>Paid APIs</span></div>
-    <div class="metric"><strong>5</strong><span>Unit Tests</span></div>
+    <div class="metric"><strong id="liveScore">—</strong><span id="liveScoreLbl">Live Maxima Score</span></div>
+    <div class="metric"><strong>5</strong><span>Failure Modes Tested</span></div>
   </section>
 
   <section class="section">
@@ -292,7 +300,27 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
 
   <footer>
     Built by Lance Jilliard Galicia. Public portfolio repo for AI agent evaluation and reliability.
+    <div style="margin-top:10px">
+      Also by FORGE:
+      <a href="https://forge-neural-map-production.up.railway.app/" target="_blank" rel="noopener">Neural Map — an AI's mind as a universe</a> ·
+      <a href="https://forge-neural-map-production.up.railway.app/story.html" target="_blank" rel="noopener">The FORGE story</a> ·
+      <a href="https://github.com/Lancimoun" target="_blank" rel="noopener">GitHub</a>
+    </div>
   </footer>
 </main>
+<script>
+  // Live Maxima score teaser — lights up once the daily trend workflow publishes data.
+  fetch('maxima-trend.json').then(function(r){ return r.json(); }).then(function(d){
+    var e = (d && d.entries) || [];
+    if (!e.length) return;
+    var last = e[e.length - 1];
+    var s = last.quality_score != null ? last.quality_score : last.source_quality_score;
+    if (s == null) return;
+    document.getElementById('liveScore').textContent = s;
+    var when = String(last.generated_at || '').slice(0, 10);
+    document.getElementById('liveScoreLbl').textContent =
+      'Live Maxima Score' + (last.verdict ? ' · ' + last.verdict : '') + (when ? ' · ' + when : '');
+  }).catch(function(){});
+</script>
 </body>
 </html>
