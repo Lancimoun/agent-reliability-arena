@@ -2,7 +2,7 @@
 
 Agent Reliability Arena is a small, dependency-light evaluation harness for AI agents.
 
-[Live demo](https://lancimoun.github.io/agent-reliability-arena/) | [Case study](docs/case_study.md)
+[Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Case study](docs/case_study.md)
 
 ![Agent Reliability Arena dashboard](docs/assets/dashboard.png)
 
@@ -24,6 +24,7 @@ Most demos show agents working once. Real systems need proof that they keep work
 
 Agent Reliability Arena gives you:
 
+- a public v0.2 transcript analyzer
 - deterministic eval cases
 - transcript health checks
 - quality scores
@@ -31,6 +32,22 @@ Agent Reliability Arena gives you:
 - a static HTML dashboard
 - daily trend JSON and a static trend dashboard
 - no paid APIs required
+
+## v0.2: Transcript Analyzer
+
+The public demo now includes a browser-only analyzer:
+
+1. Paste an AI agent transcript.
+2. Get a reliability score.
+3. Review failure modes:
+   - stale timeline or memory drift
+   - unsupported live-tool/web claims
+   - incomplete replies
+   - response bloat
+   - missing reasoning on complex advice
+4. Download a JSON report.
+
+The analyzer runs locally in the browser. It does not send transcripts to a server.
 
 ## Quick Start
 
@@ -65,7 +82,7 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
 Import a live Maxima Eval Lab report:
 
 ```powershell
-$env:SYNC_SECRET = "your-secret-here"
+$env:SYNC_SECRET = "<set-this-in-your-local-shell>"
 python -m agent_reliability_arena import-maxima --out runs/maxima-live.json
 python -m agent_reliability_arena dashboard --report runs/maxima-live.json --out runs/maxima-live-dashboard.html
 ```
@@ -75,7 +92,7 @@ See [Live Maxima Import](docs/live_maxima_import.md) for privacy notes.
 Append live Maxima imports into a daily trend:
 
 ```powershell
-$env:SYNC_SECRET = "your-secret-here"
+$env:SYNC_SECRET = "<set-this-in-your-local-shell>"
 python -m agent_reliability_arena import-maxima --out runs/maxima-live.json --trend-out runs/maxima-trend.json
 python -m agent_reliability_arena trend-dashboard --trend runs/maxima-trend.json --out runs/maxima-trend.html
 ```
@@ -148,6 +165,23 @@ This is useful for:
 - public posts about agent evaluation
 
 Read the short [case study](docs/case_study.md) for the story behind the first reliability suite.
+
+## Service Offer
+
+This repo also supports a productized freelance offer:
+
+```text
+AI Agent Reliability Audit
+
+I test your chatbot or AI agent for memory drift, hallucinated tool access,
+stale facts, incomplete replies, and RAG recall quality.
+
+Starter Audit: $99
+Deep Audit + Fix Plan: $299
+Implementation Help: $500+
+```
+
+See [Audit Service Offer](docs/audit_service_offer.md) for marketplace copy.
 
 ## Roadmap
 

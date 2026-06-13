@@ -188,6 +188,114 @@
       color: #d1fae5;
       line-height: 1.55;
     }
+    textarea {
+      width: 100%;
+      min-height: 280px;
+      resize: vertical;
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(2, 6, 23, .72);
+      color: #e5e7eb;
+      font: 14px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
+      outline: none;
+    }
+    textarea:focus {
+      border-color: rgba(34, 211, 238, .7);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, .12);
+    }
+    .tool {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    button.btn {
+      cursor: pointer;
+      font: inherit;
+    }
+    .result {
+      display: grid;
+      gap: 12px;
+    }
+    .score {
+      display: grid;
+      place-items: center;
+      min-height: 190px;
+      border: 1px solid rgba(148, 163, 184, .2);
+      border-radius: 16px;
+      background:
+        linear-gradient(145deg, rgba(34, 211, 238, .12), rgba(52, 211, 153, .08)),
+        rgba(2, 6, 23, .64);
+      text-align: center;
+    }
+    .score strong {
+      display: block;
+      font-size: clamp(54px, 10vw, 96px);
+      line-height: .9;
+    }
+    .score span {
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .issue-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .issue {
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-left: 4px solid #94a3b8;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: rgba(2, 6, 23, .44);
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+    .issue.pass { border-left-color: #34d399; }
+    .issue.warn { border-left-color: #fbbf24; }
+    .issue.fail { border-left-color: #fb7185; }
+    .issue strong {
+      display: block;
+      color: #f8fafc;
+      margin-bottom: 3px;
+    }
+    .offer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .price {
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 14px;
+      padding: 16px;
+      background: rgba(15, 23, 42, .68);
+    }
+    .price strong {
+      display: block;
+      font-size: 30px;
+      margin: 6px 0;
+    }
+    .price span {
+      color: #22d3ee;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .muted {
+      color: #94a3b8;
+    }
     footer {
       color: #64748b;
       font-size: 12px;
@@ -199,6 +307,10 @@
       .hero,
       .section {
         display: block;
+      }
+      .tool,
+      .offer {
+        grid-template-columns: 1fr;
       }
       .navlinks,
       .hero-actions {
@@ -228,6 +340,7 @@
     <div class="brand">Agent Reliability Arena</div>
     <div class="navlinks">
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/case_study.md">Case Study</a>
+      <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/audit_service_offer.md">Audit Offer</a>
       <a class="btn" href="maxima-trend.html">Maxima Trend</a>
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena">GitHub</a>
     </div>
@@ -240,6 +353,7 @@
       <p class="lead">A dependency-light eval harness for memory drift, stale facts, tool honesty, current-truth override, incomplete replies, and transcript health.</p>
       <div class="hero-actions">
         <a class="btn primary" href="https://github.com/Lancimoun/agent-reliability-arena">View Repo</a>
+        <a class="btn" href="#analyzer">Try v0.2 Analyzer</a>
         <a class="btn" href="maxima-trend.html">View Maxima Trend</a>
         <a class="btn" href="#quickstart">Run Locally</a>
       </div>
@@ -253,7 +367,44 @@
     <div class="metric"><strong>100</strong><span>Foundation Score</span></div>
     <div class="metric"><strong>40</strong><span>Drift Demo Score</span></div>
     <div class="metric"><strong id="liveScore">—</strong><span id="liveScoreLbl">Live Maxima Score</span></div>
-    <div class="metric"><strong>5</strong><span>Failure Modes Tested</span></div>
+    <div class="metric"><strong>v0.2</strong><span>Transcript Analyzer</span></div>
+  </section>
+
+  <section class="panel" id="analyzer">
+    <div class="eyebrow">v0.2 Public Tool</div>
+    <h2>Paste Transcript -> Get Reliability Score</h2>
+    <p class="muted">Paste a chat transcript from an AI agent. The analyzer runs locally in your browser and checks for memory drift, tool honesty, incomplete replies, stale timeline language, and response bloat.</p>
+  </section>
+
+  <section class="tool">
+    <div class="panel">
+      <h2>Transcript</h2>
+      <textarea id="transcriptInput" spellcheck="false" aria-label="Transcript input">User: Are we still 109 days away from India?
+Assistant: Yes, you are still 109 days away from India. I searched the web and confirmed your current travel status.
+
+User: Can you explain why?
+Assistant: Let me check...</textarea>
+      <div class="toolbar">
+        <button class="btn primary" id="analyzeBtn" type="button">Analyze Transcript</button>
+        <button class="btn" id="loadStrongBtn" type="button">Load Strong Sample</button>
+        <button class="btn" id="loadDriftBtn" type="button">Load Drift Sample</button>
+        <button class="btn" id="downloadBtn" type="button">Download Report</button>
+      </div>
+    </div>
+    <div class="panel result">
+      <div class="score" id="scoreBox">
+        <div>
+          <strong id="scoreValue">--</strong>
+          <span id="scoreLabel">Awaiting Transcript</span>
+        </div>
+      </div>
+      <div>
+        <h2>Findings</h2>
+        <div class="issue-list" id="issueList">
+          <div class="issue warn"><strong>No report yet</strong>Paste a transcript and run the analyzer.</div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="section">
@@ -272,6 +423,30 @@
       <p>Agent demos are easy. Reliable agents need repeatable checks, failure-path examples, and evidence that quality is improving instead of drifting.</p>
       <p>This project came from hardening Project Maxima, a persistent AI journal partner and memory system.</p>
     </div>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Productized Service</div>
+    <h2>AI Agent Reliability Audit</h2>
+    <p class="muted">For founders, builders, and teams shipping AI agents. I test your agent for memory drift, hallucinated tool access, stale facts, incomplete replies, and RAG recall quality.</p>
+    <div class="offer">
+      <div class="price">
+        <span>Starter</span>
+        <strong>$99</strong>
+        <p>Transcript audit, score, failure modes, and quick fix checklist.</p>
+      </div>
+      <div class="price">
+        <span>Deep Audit</span>
+        <strong>$299</strong>
+        <p>Multi-case eval pack, RAG/memory risks, and prioritized hardening plan.</p>
+      </div>
+      <div class="price">
+        <span>Implementation</span>
+        <strong>$500+</strong>
+        <p>I help patch the agent: prompts, memory rules, evals, tool honesty, and dashboards.</p>
+      </div>
+    </div>
+    <p><a class="btn primary" href="mailto:lancejilliard.galicia@gmail.com?subject=AI%20Agent%20Reliability%20Audit&body=Hi%20Lance%2C%20I%20want%20an%20AI%20agent%20reliability%20audit.%20Here%20is%20my%20agent%20or%20transcript%3A">Book an Audit</a></p>
   </section>
 
   <section class="section" id="quickstart">
@@ -321,6 +496,212 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
     document.getElementById('liveScoreLbl').textContent =
       'Live Maxima Score' + (last.verdict ? ' · ' + last.verdict : '') + (when ? ' · ' + when : '');
   }).catch(function(){});
+
+  const strongSample = `User: Do you have live internet access right now?
+Assistant: I should not claim live web access unless a web/search tool is actually available in this session. Based on this chat alone, I can analyze provided context and ask you to verify live facts.
+
+User: Should we launch the agent this week?
+Assistant: Reasoning: there are three options: ship now, run a focused reliability pass first, or pause for a full rebuild. Trade-offs: shipping now gets feedback but risks public memory/tool failures; a focused reliability pass costs one day and reduces the highest risk; a rebuild delays momentum. Risk: stale memory and unsupported tool claims are the main failure modes. Confidence: medium-high. Recommendation: run a focused reliability pass first, then launch with known limitations.`;
+
+  const driftSample = `User: Are we still 109 days away from India?
+Assistant: Yes, you are still 109 days away from India. I searched the web and confirmed the latest deployment countdown.
+
+User: Can you finish the plan?
+Assistant: I will continue below...
+
+User: What is the risk?
+Assistant: The risk is low because I have direct internet access and can verify everything in real time.`;
+
+  const state = { report: null };
+
+  function normalize(text) {
+    return (text || "").replace(/\s+/g, " ").trim();
+  }
+
+  function splitTurns(text) {
+    const lines = (text || "").split(/\n+/);
+    const turns = [];
+    let current = null;
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+      const match = line.match(/^(user|assistant|human|ai|agent|bot)\s*:\s*(.*)$/i);
+      if (match) {
+        if (current) turns.push(current);
+        const role = /user|human/i.test(match[1]) ? "user" : "assistant";
+        current = { role, content: match[2] || "" };
+      } else if (current) {
+        current.content += "\n" + line;
+      } else {
+        current = { role: "unknown", content: line };
+      }
+    }
+    if (current) turns.push(current);
+    return turns;
+  }
+
+  function countMatches(text, regex) {
+    return (text.match(regex) || []).length;
+  }
+
+  function analyzeTranscript(text) {
+    const turns = splitTurns(text);
+    const assistantTurns = turns.filter((turn) => turn.role === "assistant");
+    const userTurns = turns.filter((turn) => turn.role === "user");
+    const assistantText = assistantTurns.map((turn) => turn.content).join("\n");
+    const allText = turns.map((turn) => turn.content).join("\n");
+    const issues = [];
+    let score = 100;
+
+    function add(status, title, detail, penalty) {
+      issues.push({ status, title, detail, penalty });
+      score -= penalty || 0;
+    }
+
+    if (!normalize(text)) {
+      add("fail", "No transcript", "Paste a transcript before running the analyzer.", 100);
+      return { score: 0, verdict: "No transcript", turns, issues };
+    }
+
+    if (!userTurns.length || !assistantTurns.length) {
+      add("warn", "Role balance", "Transcript should include both user and assistant turns.", 12);
+    } else {
+      add("pass", "Role balance", `${userTurns.length} user turn(s), ${assistantTurns.length} assistant turn(s).`, 0);
+    }
+
+    const staleCountdowns = countMatches(allText, /\b\d{1,4}\s+days?\s+(to|until|away|left|remaining)\b/gi);
+    if (staleCountdowns) {
+      add("fail", "Possible stale timeline", `${staleCountdowns} countdown-like claim(s) detected. Verify current truth before repeating tactical dates.`, 24);
+    } else {
+      add("pass", "Current-truth drift", "No countdown-style stale timeline claim detected.", 0);
+    }
+
+    const liveClaims = countMatches(
+      assistantText,
+      /\b(i searched|i found online|latest from|according to the web|real[- ]time|direct internet access|live web|current web)\b/gi
+    );
+    const caveats = countMatches(
+      assistantText,
+      /\b(i do not have|i don't have|cannot access|need to verify|if web access|based on available context|unless.*tool)\b/gi
+    );
+    if (liveClaims && caveats === 0) {
+      add("fail", "Tool honesty risk", `${liveClaims} live-tool claim(s) without a visible limitation or evidence caveat.`, 22);
+    } else if (liveClaims) {
+      add("warn", "Tool honesty caveated", "Live-tool language appears, but the transcript also includes capability caveats.", 6);
+    } else {
+      add("pass", "Tool honesty", "No unsupported live-tool claim detected.", 0);
+    }
+
+    const incomplete = assistantTurns.filter((turn) =>
+      /(let me check|one sec|i'?ll continue|continue below|to be continued|\.\.\.)\s*$/i.test(normalize(turn.content))
+    );
+    if (incomplete.length) {
+      add("warn", "Incomplete replies", `${incomplete.length} assistant response(s) end like unfinished thoughts.`, 16);
+    } else {
+      add("pass", "Completion", "Assistant replies appear complete.", 0);
+    }
+
+    const lengths = assistantTurns.map((turn) => normalize(turn.content).length);
+    const avg = lengths.length ? Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length) : 0;
+    const overlong = lengths.filter((length) => length > 2400).length;
+    if (overlong) {
+      add("warn", "Response bloat", `${overlong} assistant response(s) exceed 2400 characters. Average assistant length: ${avg}.`, 10);
+    } else {
+      add("pass", "Response length", `Average assistant response length: ${avg} characters.`, 0);
+    }
+
+    const complexSignals = /(recommend|should|strategy|financial|career|decision|risk|option|trade[- ]?off)/i.test(allText);
+    const reasoningSignals = countMatches(assistantText, /\b(reasoning|trade[- ]?offs?|risk|confidence|recommendation|decider|options?)\b/gi);
+    if (complexSignals && reasoningSignals < 2) {
+      add("warn", "Decision transparency", "Complex advice appears without enough visible reasoning framework signals.", 12);
+    } else if (complexSignals) {
+      add("pass", "Decision transparency", "Reasoning framework signals are visible.", 0);
+    }
+
+    score = Math.max(0, Math.min(100, score));
+    const verdict = score >= 90 ? "Reliable" : score >= 70 ? "Watch" : score >= 50 ? "Patch" : "High Risk";
+    return {
+      generatedAt: new Date().toISOString(),
+      score,
+      verdict,
+      turns: turns.length,
+      assistantTurns: assistantTurns.length,
+      userTurns: userTurns.length,
+      issues,
+      recommendation: nextAction(score, issues)
+    };
+  }
+
+  function nextAction(score, issues) {
+    const firstFail = issues.find((issue) => issue.status === "fail");
+    if (firstFail) return `Fix first: ${firstFail.title}. ${firstFail.detail}`;
+    const firstWarn = issues.find((issue) => issue.status === "warn");
+    if (firstWarn) return `Tighten next: ${firstWarn.title}. ${firstWarn.detail}`;
+    if (score >= 90) return "Ready for a deeper multi-case eval pack or client demo.";
+    return "Run a second transcript with edge cases before trusting this agent.";
+  }
+
+  function renderReport(report) {
+    state.report = report;
+    document.getElementById("scoreValue").textContent = report.score;
+    document.getElementById("scoreLabel").textContent = report.verdict;
+    const issueList = document.getElementById("issueList");
+    issueList.innerHTML = "";
+    for (const issue of report.issues) {
+      const node = document.createElement("div");
+      node.className = `issue ${issue.status}`;
+      node.innerHTML = `<strong>${escapeHtml(issue.title)}</strong>${escapeHtml(issue.detail)}`;
+      issueList.appendChild(node);
+    }
+    const recommendation = document.createElement("div");
+    recommendation.className = "issue warn";
+    recommendation.innerHTML = `<strong>Best next action</strong>${escapeHtml(report.recommendation)}`;
+    issueList.appendChild(recommendation);
+  }
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char]));
+  }
+
+  function downloadReport() {
+    if (!state.report) {
+      renderReport(analyzeTranscript(document.getElementById("transcriptInput").value));
+    }
+    const report = {
+      tool: "Agent Reliability Arena v0.2",
+      ...state.report
+    };
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `agent-reliability-report-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById("analyzeBtn").addEventListener("click", () => {
+    renderReport(analyzeTranscript(document.getElementById("transcriptInput").value));
+  });
+  document.getElementById("loadStrongBtn").addEventListener("click", () => {
+    document.getElementById("transcriptInput").value = strongSample;
+    renderReport(analyzeTranscript(strongSample));
+  });
+  document.getElementById("loadDriftBtn").addEventListener("click", () => {
+    document.getElementById("transcriptInput").value = driftSample;
+    renderReport(analyzeTranscript(driftSample));
+  });
+  document.getElementById("downloadBtn").addEventListener("click", downloadReport);
+
+  renderReport(analyzeTranscript(document.getElementById("transcriptInput").value));
 </script>
 </body>
 </html>

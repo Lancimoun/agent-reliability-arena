@@ -27,6 +27,16 @@ The first suite focuses on:
 
 The goal is simple: make agent quality visible before users need to complain.
 
+In v0.2, the project also adds a public browser analyzer:
+
+- paste any AI agent transcript
+- run local deterministic checks
+- get a reliability score and verdict
+- download a JSON report
+- see one concrete next action
+
+This turns the repo from a static portfolio proof into a usable lead magnet for agent audit work.
+
 ## What The Arena Catches
 
 The `drift_demo` suite intentionally includes bad agent behavior:
@@ -62,6 +72,14 @@ Token in saved report: false
 
 The mismatch between Arena quality and source quality is useful: it shows that an external harness can be stricter than the agent's own internal score.
 
+Public v0.2 analyzer:
+
+```text
+Paste transcript -> score -> failure modes -> report download -> audit CTA
+```
+
+This creates a simple commercial path: a founder can test a transcript themselves, then hire Lance for a deeper reliability audit or implementation fix.
+
 ## Engineering Lessons
 
 1. Keep telemetry out of memory.
@@ -82,6 +100,7 @@ The mismatch between Arena quality and source quality is useful: it shows that a
 
 ## Next Steps
 
+- Add shareable report pages.
 - Add regression thresholds for CI.
 - Add OpenTelemetry-style trace export.
 - Add optional model-graded rubrics.
