@@ -2,7 +2,7 @@
 
 Agent Reliability Arena is a small, dependency-light evaluation harness for AI agents.
 
-[Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Case study](docs/case_study.md) | [Launch case study](docs/launch_case_study.md)
+[Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Leaderboard roadmap](ROADMAP.md) | [Case study](docs/case_study.md) | [Launch case study](docs/launch_case_study.md)
 
 ![Agent Reliability Arena dashboard](docs/assets/dashboard.png)
 
@@ -25,6 +25,7 @@ Most demos show agents working once. Real systems need proof that they keep work
 Agent Reliability Arena gives you:
 
 - a public v0.2 transcript analyzer
+- a seed leaderboard for agent/model comparison
 - deterministic eval cases
 - transcript health checks
 - quality scores
@@ -48,6 +49,19 @@ The public demo now includes a browser-only analyzer:
 4. Download a JSON report.
 
 The analyzer runs locally in the browser. It does not send transcripts to a server.
+
+## v0.3 Direction: Reliability Leaderboard
+
+The next upgrade turns Arena into a comparison board:
+
+1. Run the same reliability suite across agent endpoints or model providers.
+2. Score memory drift, stale facts, tool honesty, response completion, and decision transparency.
+3. Compare reliability score, cost, and latency.
+4. Publish a shareable HTML/PDF scorecard for portfolio posts and client audits.
+
+The public page now includes a seed leaderboard with real deterministic Arena rows plus queued provider slots for Claude, GPT, Gemini, and Groq through Axiom. No provider score is claimed until a real run exists.
+
+See [ROADMAP.md](ROADMAP.md) for the phased plan.
 
 ## Quick Start
 
@@ -187,8 +201,9 @@ See [Audit Service Offer](docs/audit_service_offer.md) for marketplace copy.
 
 ## Roadmap
 
+- Add Axiom multi-provider runner for Claude, GPT, Gemini, Groq, and Maxima
+- Add cost and latency comparison
+- Add GitHub Actions regression checks and README badges
 - Add model-graded rubrics behind an optional API key
-- Add OpenTelemetry-style trace export
-- Add GitHub Actions regression checks
-- Add screenshot dashboard tests
+- Add statistical rigor through repeated runs and variance reporting
 - Add more live import adapters for other agent dashboards

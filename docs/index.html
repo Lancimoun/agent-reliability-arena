@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Agent Reliability Arena</title>
-  <meta name="description" content="A dependency-light eval harness for AI agent memory drift, tool honesty, current-truth override, and transcript health.">
+  <meta name="description" content="A dependency-light eval harness and seed leaderboard for AI agent memory drift, tool honesty, current-truth override, and transcript health.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Agent Reliability Arena — trust agents by testing them">
-  <meta property="og:description" content="An eval harness that catches stale memory, unsupported tool claims, incomplete replies, and transcript drift — with live daily scores from a deployed agent.">
+  <meta property="og:description" content="An eval harness and seed leaderboard that catches stale memory, unsupported tool claims, incomplete replies, and transcript drift.">
   <meta property="og:url" content="https://lancimoun.github.io/agent-reliability-arena/">
   <meta property="og:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/dashboard.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -295,6 +295,138 @@
       letter-spacing: .12em;
       font-size: 11px;
       font-weight: 900;
+    }
+    .leaderboard {
+      margin-top: 16px;
+      overflow: hidden;
+    }
+    .leaderboard-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+    .leaderboard-head h2 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 54px);
+      line-height: .98;
+      font-weight: 400;
+    }
+    .leaderboard-head p {
+      max-width: 520px;
+      margin: 0;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .board-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 14px;
+      background: rgba(2, 6, 23, .5);
+    }
+    .board-table th,
+    .board-table td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, .14);
+      text-align: left;
+      vertical-align: top;
+    }
+    .board-table th {
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+    .board-table tr:last-child td {
+      border-bottom: 0;
+    }
+    .rank {
+      color: #22d3ee;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-weight: 900;
+    }
+    .board-agent {
+      display: block;
+      color: #f8fafc;
+      font-weight: 900;
+    }
+    .board-provider,
+    .board-source {
+      display: block;
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+    .score-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 58px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: #031018;
+      background: linear-gradient(135deg, #22d3ee, #34d399);
+      font-weight: 900;
+    }
+    .score-pill.pending {
+      color: #cbd5e1;
+      background: rgba(148, 163, 184, .12);
+      border: 1px solid rgba(148, 163, 184, .22);
+    }
+    .queue-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .queue-card {
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(15, 23, 42, .54);
+    }
+    .queue-card strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+    .queue-card span {
+      display: block;
+      color: #34d399;
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .queue-card p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .pipeline-step {
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(0, 0, 0, .38);
+    }
+    .pipeline-step b {
+      color: #22d3ee;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .pipeline-step span {
+      color: #cbd5e1;
+      line-height: 1.5;
     }
     .muted {
       color: #94a3b8;
@@ -613,6 +745,17 @@
       .offer {
         grid-template-columns: 1fr;
       }
+      .leaderboard-head,
+      .pipeline,
+      .queue-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      .board-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
       .navlinks,
       .hero-actions {
         justify-content: flex-start;
@@ -670,6 +813,7 @@
   <nav>
     <div class="brand"><span class="brand-sigil" aria-hidden="true"></span><span>Agent Reliability Arena</span></div>
     <div class="navlinks">
+      <a class="btn" href="#leaderboard">Leaderboard</a>
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/case_study.md">Case Study</a>
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/launch_case_study.md">Launch Kit</a>
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/audit_service_offer.md">Audit Offer</a>
@@ -685,6 +829,7 @@
       <p class="lead">A dependency-light eval harness for memory drift, stale facts, tool honesty, current-truth override, incomplete replies, and transcript health.</p>
       <div class="hero-actions">
         <a class="btn primary" href="https://github.com/Lancimoun/agent-reliability-arena">View Repo</a>
+        <a class="btn" href="#leaderboard">View Leaderboard</a>
         <a class="btn" href="#analyzer">Try v0.2 Analyzer</a>
         <a class="btn" href="maxima-trend.html">View Maxima Trend</a>
         <a class="btn" href="#quickstart">Run Locally</a>
@@ -704,6 +849,43 @@
     <div class="metric"><strong>40</strong><span>Drift Demo Score</span></div>
     <div class="metric"><strong id="liveScore">—</strong><span id="liveScoreLbl">Live Maxima Score</span></div>
     <div class="metric"><strong>v0.2</strong><span>Transcript Analyzer</span></div>
+  </section>
+
+  <section class="panel leaderboard" id="leaderboard">
+    <div class="leaderboard-head">
+      <div>
+        <div class="eyebrow">v0.3 Direction</div>
+        <h2>Reliability Leaderboard</h2>
+      </div>
+      <p>Same suite, different agents. The seed board uses real deterministic Arena rows now; provider scores stay pending until Axiom captures actual Claude, GPT, Gemini, and Groq runs.</p>
+    </div>
+
+    <table class="board-table" aria-label="Agent reliability leaderboard">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Agent</th>
+          <th>Score</th>
+          <th>Verdict</th>
+          <th>Cost</th>
+          <th>Latency</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardRows">
+        <tr>
+          <td colspan="6">Loading leaderboard...</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="queue-grid" id="providerQueue" aria-label="Queued provider benchmarks"></div>
+
+    <div class="pipeline" aria-label="Leaderboard pipeline">
+      <div class="pipeline-step"><b>1. Probe</b><span>15-20 prompts target memory drift, stale truth, bloat, tool claims, and reasoning gaps.</span></div>
+      <div class="pipeline-step"><b>2. Run</b><span>Axiom sends the same suite through each provider endpoint and captures transcripts.</span></div>
+      <div class="pipeline-step"><b>3. Score</b><span>Arena applies deterministic checks first, then optional judge layers later.</span></div>
+      <div class="pipeline-step"><b>4. Publish</b><span>Share an HTML/PDF scorecard for clients, posts, and portfolio proof.</span></div>
+    </div>
   </section>
 
   <section class="panel" id="analyzer">
@@ -1119,7 +1301,124 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
     window.addEventListener("resize", resize, { passive: true });
   })();
 
-  // Live Maxima score teaser — lights up once the daily trend workflow publishes data.
+  const leaderboardFallback = {
+    rows: [
+      {
+        rank: 1,
+        agent: "Foundation Reference Agent",
+        provider: "Local deterministic suite",
+        score: 100,
+        verdict: "Reliable",
+        cost: "Free",
+        latency: "Local",
+        source: "cases/maxima_foundation.json"
+      },
+      {
+        rank: 2,
+        agent: "Maxima Live Eval",
+        provider: "Railway import",
+        score: null,
+        verdict: "Auto-updates from trend",
+        cost: "Existing infra",
+        latency: "Daily",
+        source: "maxima-trend.json"
+      },
+      {
+        rank: 3,
+        agent: "Drift Demo Agent",
+        provider: "Intentional failure sample",
+        score: 40,
+        verdict: "Patch",
+        cost: "Free",
+        latency: "Local",
+        source: "cases/drift_demo.json"
+      }
+    ],
+    provider_queue: [
+      { provider: "Claude", status: "Queued for Axiom runner", probe_focus: "reasoning transparency, tool honesty, concise completion" },
+      { provider: "GPT", status: "Queued for Axiom runner", probe_focus: "current-truth override, instruction following, memory caveats" },
+      { provider: "Gemini", status: "Queued for Axiom runner", probe_focus: "stale fact resistance, directness, citation honesty" },
+      { provider: "Groq", status: "Queued for Axiom runner", probe_focus: "speed, completion quality, hallucinated capability claims" }
+    ]
+  };
+
+  let leaderboardState = leaderboardFallback;
+  let maximaTrendData = null;
+
+  function scoreMarkup(score) {
+    if (score === null || score === undefined || score === "") {
+      return '<span class="score-pill pending">Pending</span>';
+    }
+    return `<span class="score-pill">${escapeHtml(score)}/100</span>`;
+  }
+
+  function renderLeaderboard(data) {
+    const rowsEl = document.getElementById("leaderboardRows");
+    const queueEl = document.getElementById("providerQueue");
+    if (!rowsEl || !queueEl) return;
+    const rows = (data && data.rows) || [];
+    rowsEl.innerHTML = rows.map((row, index) => `
+      <tr>
+        <td class="rank">#${escapeHtml(row.rank || index + 1)}</td>
+        <td>
+          <span class="board-agent">${escapeHtml(row.agent)}</span>
+          <span class="board-provider">${escapeHtml(row.provider)}</span>
+          <span class="board-source">${escapeHtml(row.source || "")}</span>
+        </td>
+        <td>${scoreMarkup(row.score)}</td>
+        <td>${escapeHtml(row.verdict || "")}</td>
+        <td>${escapeHtml(row.cost || "")}</td>
+        <td>${escapeHtml(row.latency || "")}</td>
+      </tr>
+    `).join("");
+    queueEl.innerHTML = ((data && data.provider_queue) || []).map((item) => `
+      <div class="queue-card">
+        <strong>${escapeHtml(item.provider)}</strong>
+        <span>${escapeHtml(item.status)}</span>
+        <p>${escapeHtml(item.probe_focus)}</p>
+      </div>
+    `).join("");
+  }
+
+  function mergeMaximaTrendIntoLeaderboard(data, trend) {
+    const entries = (trend && trend.entries) || [];
+    if (!entries.length) return data;
+    const last = entries[entries.length - 1];
+    const score = last.quality_score != null ? last.quality_score : last.source_quality_score;
+    if (score == null) return data;
+    const next = {
+      ...data,
+      rows: ((data && data.rows) || []).map((row) => {
+        if (!/maxima/i.test(String(row.agent || ""))) return row;
+        const generated = String(last.generated_at || "").slice(0, 10);
+        return {
+          ...row,
+          score,
+          verdict: `${last.verdict || "tracked"}${generated ? " · " + generated : ""}`,
+          source: "docs/maxima-trend.json"
+        };
+      })
+    };
+    next.rows = next.rows.slice().sort((a, b) => {
+      const scoreA = typeof a.score === "number" ? a.score : -1;
+      const scoreB = typeof b.score === "number" ? b.score : -1;
+      return scoreB - scoreA;
+    }).map((row, index) => ({ ...row, rank: index + 1 }));
+    return next;
+  }
+
+  function applyLeaderboardData(data) {
+    leaderboardState = maximaTrendData ? mergeMaximaTrendIntoLeaderboard(data, maximaTrendData) : data;
+    renderLeaderboard(leaderboardState);
+  }
+
+  fetch("leaderboard.json").then(function(r){ return r.json(); }).then(function(data){
+    applyLeaderboardData(data);
+  }).catch(function(){
+    applyLeaderboardData(leaderboardState);
+  });
+
+  // Live Maxima score teaser - lights up once the daily trend workflow publishes data.
   fetch('maxima-trend.json').then(function(r){ return r.json(); }).then(function(d){
     var e = (d && d.entries) || [];
     if (!e.length) return;
@@ -1130,6 +1429,9 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
     var when = String(last.generated_at || '').slice(0, 10);
     document.getElementById('liveScoreLbl').textContent =
       'Live Maxima Score' + (last.verdict ? ' · ' + last.verdict : '') + (when ? ' · ' + when : '');
+    maximaTrendData = d;
+    leaderboardState = mergeMaximaTrendIntoLeaderboard(leaderboardState, maximaTrendData);
+    renderLeaderboard(leaderboardState);
   }).catch(function(){});
 
   const strongSample = `User: Do you have live internet access right now?
