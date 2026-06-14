@@ -2,7 +2,7 @@
 
 Agent Reliability Arena is a small, dependency-light evaluation harness for AI agents.
 
-[Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Case study](docs/case_study.md)
+[Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Case study](docs/case_study.md) | [Launch case study](docs/launch_case_study.md)
 
 ![Agent Reliability Arena dashboard](docs/assets/dashboard.png)
 
@@ -165,6 +165,8 @@ This is useful for:
 - public posts about agent evaluation
 
 Read the short [case study](docs/case_study.md) for the story behind the first reliability suite.
+
+Read the [launch case study](docs/launch_case_study.md) for LinkedIn, Facebook, Upwork, YouTube Shorts, and TikTok launch copy.
 
 ## Service Offer
 
