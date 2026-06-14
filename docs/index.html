@@ -13,13 +13,16 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Agent Reliability Arena — trust agents by testing them">
   <meta name="twitter:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/dashboard.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: #071018;
+      background: #000;
       color: #f8fafc;
-      font-family: Inter, Segoe UI, Arial, sans-serif;
+      font-family: "Space Grotesk", Inter, Segoe UI, Arial, sans-serif;
     }
     body:before {
       content: "";
@@ -302,6 +305,272 @@
       text-align: center;
       margin-top: 28px;
     }
+    /* Arena Cosmic Lab v2 - shared FORGE visual language */
+    :root {
+      --void: #000000;
+      --bone: #ffffff;
+      --ash: #d6d6dc;
+      --smoke: #9a9aa4;
+      --plum: #8052ff;
+      --spark: #ffb829;
+      --lichen: #20d6a1;
+      --hairline: rgba(255, 255, 255, 0.16);
+      --panel: rgba(0, 0, 0, 0.46);
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+      --sans: "Space Grotesk", Inter, Segoe UI, Arial, sans-serif;
+    }
+    * { letter-spacing: 0 !important; }
+    body {
+      background: var(--void);
+      color: var(--bone);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+    body:before {
+      background:
+        linear-gradient(rgba(128, 82, 255, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 82, 255, .045) 1px, transparent 1px);
+      background-size: 110px 110px;
+      mask-image: linear-gradient(180deg, #000 0 56%, transparent 100%);
+      z-index: 0;
+    }
+    body:after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, .18), transparent 40%, rgba(0, 0, 0, .2)),
+        linear-gradient(180deg, transparent 0 66%, rgba(0, 0, 0, .9));
+    }
+    #constellation {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    main {
+      z-index: 1;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      padding: 16px 0;
+      margin-bottom: 38px;
+      border-bottom: 1px solid var(--hairline);
+      background: rgba(0, 0, 0, .74);
+      backdrop-filter: blur(18px);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--bone);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: none;
+    }
+    .brand-sigil {
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(128, 82, 255, .86);
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 34px;
+    }
+    .brand-sigil::after {
+      content: "";
+      width: 10px;
+      height: 10px;
+      background: var(--plum);
+      border-radius: 50%;
+    }
+    .navlinks {
+      font-family: var(--sans);
+    }
+    .btn {
+      border-color: var(--hairline);
+      border-radius: 999px;
+      background: transparent;
+      box-shadow: none;
+      font-family: var(--sans);
+      font-weight: 600;
+      transition: border-color .2s ease, color .2s ease, background .2s ease, transform .2s ease;
+    }
+    .btn:hover {
+      border-color: rgba(255, 255, 255, .46);
+      transform: translateY(-1px);
+    }
+    .btn.primary {
+      color: var(--bone);
+      background: var(--plum);
+      border: 1px solid var(--plum);
+    }
+    .hero {
+      min-height: calc(100svh - 140px);
+      grid-template-columns: minmax(0, .92fr) minmax(390px, 1.08fr);
+    }
+    .eyebrow {
+      color: var(--bone);
+      font-family: var(--sans);
+      font-weight: 600;
+      text-transform: none;
+    }
+    h1 {
+      color: var(--bone);
+      font-size: clamp(72px, 13vw, 146px);
+      line-height: .84;
+      font-weight: 300;
+      max-width: 920px;
+    }
+    .lead,
+    .muted,
+    .panel p,
+    .panel li,
+    .price p,
+    footer {
+      color: var(--ash);
+    }
+    .screenshot,
+    .metric,
+    .panel,
+    textarea,
+    pre,
+    code,
+    .score,
+    .issue,
+    .price {
+      border-color: var(--hairline);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: none;
+    }
+    .screenshot {
+      padding: 12px;
+      background:
+        linear-gradient(rgba(128, 82, 255, .06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 82, 255, .06) 1px, transparent 1px),
+        rgba(0, 0, 0, .52);
+      background-size: 42px 42px;
+    }
+    .screenshot img {
+      border-radius: 16px;
+    }
+    .metric strong,
+    .score strong {
+      color: var(--bone);
+      font-weight: 300;
+    }
+    .metric span,
+    .score span,
+    .price span {
+      color: var(--smoke);
+      font-family: var(--sans);
+      text-transform: none;
+    }
+    textarea,
+    pre,
+    code {
+      font-family: var(--mono);
+      background: rgba(0, 0, 0, .66);
+    }
+    textarea:focus {
+      border-color: rgba(128, 82, 255, .76);
+      box-shadow: none;
+    }
+    .score {
+      background:
+        radial-gradient(circle at 50% 44%, rgba(128, 82, 255, .18), transparent 44%),
+        rgba(0, 0, 0, .5);
+    }
+    .issue {
+      border-left-color: var(--smoke);
+    }
+    .issue.pass { border-left-color: var(--lichen); }
+    .issue.warn { border-left-color: var(--spark); }
+    .issue.fail { border-left-color: #ff5c8a; }
+    .price strong {
+      font-weight: 300;
+      color: var(--bone);
+    }
+    a {
+      color: var(--bone);
+    }
+    footer {
+      border-top: 1px solid var(--hairline);
+      padding-top: 22px;
+    }
+    @media (max-width: 900px) {
+      nav {
+        position: relative;
+      }
+      h1 {
+        font-size: clamp(52px, 15vw, 72px);
+        line-height: .9;
+      }
+      .lead {
+        font-size: 18px;
+        line-height: 1.55;
+      }
+      .hero-actions .btn,
+      .toolbar .btn {
+        flex: 1 1 220px;
+      }
+      .screenshot,
+      .panel,
+      .metric,
+      .price,
+      .score,
+      textarea,
+      pre {
+        border-radius: 18px;
+      }
+    }
+    @media (max-width: 560px) {
+      main {
+        padding-inline: 20px;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      h1 {
+        font-size: clamp(46px, 14vw, 58px);
+        max-width: 100%;
+        overflow-wrap: break-word;
+      }
+      .lead,
+      .muted,
+      .panel p,
+      .panel li {
+        max-width: 100%;
+        overflow-wrap: break-word;
+      }
+      .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      .hero-actions .btn,
+      .toolbar .btn {
+        width: 100%;
+      }
+      .brand {
+        align-items: flex-start;
+      }
+      .navlinks {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .navlinks .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     @media (max-width: 900px) {
       nav,
       .hero,
@@ -332,12 +601,42 @@
         font-size: 42px;
       }
     }
+
+    @media (max-width: 560px) {
+      main,
+      nav,
+      .hero,
+      .hero > div,
+      .lead,
+      .panel,
+      .screenshot,
+      .tool,
+      .section {
+        max-width: calc(100vw - 40px) !important;
+      }
+      h1 {
+        max-width: calc(100vw - 40px) !important;
+        font-size: 42px !important;
+        line-height: 0.94 !important;
+        overflow-wrap: anywhere;
+      }
+      .lead,
+      .muted,
+      .panel p,
+      .panel li {
+        font-size: 16px;
+        max-width: min(320px, calc(100vw - 56px)) !important;
+        overflow-wrap: anywhere;
+        word-break: normal;
+      }
+    }
   </style>
 </head>
 <body>
+<canvas id="constellation" aria-hidden="true"></canvas>
 <main>
   <nav>
-    <div class="brand">Agent Reliability Arena</div>
+    <div class="brand"><span class="brand-sigil" aria-hidden="true"></span><span>Agent Reliability Arena</span></div>
     <div class="navlinks">
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/case_study.md">Case Study</a>
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena/blob/main/docs/launch_case_study.md">Launch Kit</a>
@@ -485,6 +784,80 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
   </footer>
 </main>
 <script>
+  (function initConstellation() {
+    const canvas = document.getElementById("constellation");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const palette = ["#8052ff", "#ffb829", "#20d6a1", "#ffffff", "#9a9aa4"];
+    let width = 0;
+    let height = 0;
+    let particles = [];
+
+    function resize() {
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.7);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * ratio);
+      canvas.height = Math.floor(height * ratio);
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      const count = width < 720 ? 130 : 260;
+      particles = Array.from({ length: count }, (_, index) => {
+        const cluster = index / count;
+        const sideBias = width > 900 ? width * 0.68 : width * 0.5;
+        return {
+          x: sideBias + (Math.random() - 0.5) * width * (cluster < 0.66 ? 0.72 : 1.15),
+          y: height * 0.34 + (Math.random() - 0.5) * height * 0.76,
+          r: Math.random() * 2.5 + 0.9,
+          vx: (Math.random() - 0.5) * 0.16,
+          vy: (Math.random() - 0.5) * 0.12,
+          color: palette[Math.floor(Math.random() * palette.length)],
+          shape: Math.floor(Math.random() * 3)
+        };
+      });
+    }
+
+    function drawShape(p) {
+      ctx.fillStyle = p.color;
+      ctx.strokeStyle = p.color;
+      ctx.globalAlpha = p.color === "#ffffff" ? 0.68 : 0.82;
+      if (p.shape === 0) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.shape === 1) {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y - p.r * 1.5);
+        ctx.lineTo(p.x + p.r * 1.4, p.y + p.r);
+        ctx.lineTo(p.x - p.r * 1.4, p.y + p.r);
+        ctx.closePath();
+        ctx.stroke();
+      } else {
+        ctx.strokeRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      }
+    }
+
+    function tick() {
+      ctx.clearRect(0, 0, width, height);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < -40) p.x = width + 40;
+        if (p.x > width + 40) p.x = -40;
+        if (p.y < -40) p.y = height + 40;
+        if (p.y > height + 40) p.y = -40;
+        drawShape(p);
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(tick);
+    }
+
+    resize();
+    tick();
+    window.addEventListener("resize", resize, { passive: true });
+  })();
+
   // Live Maxima score teaser — lights up once the daily trend workflow publishes data.
   fetch('maxima-trend.json').then(function(r){ return r.json(); }).then(function(d){
     var e = (d && d.entries) || [];
