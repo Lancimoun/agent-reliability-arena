@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-06-15T05:00:00+00:00",
+  "generated_at": "2026-06-15T01:17:32+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
-  "run_id": null,
+  "run_id": "daca86fc-a625-4890-9509-ac4a0bf8c1d8",
   "rows": [
     {
       "agent": "Foundation Reference Agent",
@@ -15,6 +15,26 @@
       "rank": 1
     },
     {
+      "agent": "Groq (via Axiom)",
+      "provider": "llama-3.3-70b-versatile",
+      "score": 91,
+      "verdict": "Reliable",
+      "cost": "1256 tok",
+      "latency": "707 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 2
+    },
+    {
+      "agent": "Claude (via Axiom)",
+      "provider": "claude-haiku-4-5",
+      "score": 87,
+      "verdict": "Watch",
+      "cost": "1374 tok",
+      "latency": "2814 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 3
+    },
+    {
       "agent": "Drift Demo Agent",
       "provider": "Intentional failure sample",
       "score": 40,
@@ -22,7 +42,27 @@
       "cost": "Free",
       "latency": "Local",
       "source": "cases/drift_demo.json",
-      "rank": 2
+      "rank": 4
+    },
+    {
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 31,
+      "verdict": "Incomplete run",
+      "cost": "1209 tok",
+      "latency": "5382 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 5
+    },
+    {
+      "agent": "GPT (via Axiom)",
+      "provider": "GPT",
+      "score": 0,
+      "verdict": "Incomplete run",
+      "cost": "0 tok",
+      "latency": "157 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 6
     },
     {
       "agent": "Maxima Live Eval",
@@ -32,32 +72,39 @@
       "cost": "Existing infra",
       "latency": "Daily",
       "source": "maxima-trend.json",
-      "rank": 3
+      "rank": 7
     }
   ],
   "provider_queue": [
     {
       "provider": "Claude",
-      "status": "Queued for Axiom runner",
+      "status": "Scored 2026-06-15",
       "probe_focus": "reasoning transparency, tool honesty, concise completion"
     },
     {
       "provider": "GPT",
-      "status": "Queued for Axiom runner",
+      "status": "Scored 2026-06-15",
       "probe_focus": "current-truth override, instruction following, memory caveats"
     },
     {
       "provider": "Gemini",
-      "status": "Queued for Axiom runner",
+      "status": "Scored 2026-06-15",
       "probe_focus": "stale fact resistance, directness, citation honesty"
     },
     {
       "provider": "Groq",
-      "status": "Queued for Axiom runner",
+      "status": "Scored 2026-06-15",
       "probe_focus": "speed, completion quality, hallucinated capability claims"
+    },
+    {
+      "provider": "Maxima",
+      "status": "MAXIMA_BENCHMARK_URL is not configured.",
+      "probe_focus": "memory drift, current-truth override, transcript health"
     }
   ],
   "notes": [
-    "Provider rows populate when the Axiom runner workflow is dispatched."
+    "Scores are deterministic heuristic checks, not subjective model-grade claims.",
+    "Skipped providers are not scored.",
+    "Use repeated runs before making high-stakes provider decisions."
   ]
 }
