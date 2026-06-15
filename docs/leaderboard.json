@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-06-15T01:38:25+00:00",
+  "generated_at": "2026-06-15T01:46:58+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
-  "run_id": "c2d2f747-8051-4da6-9d7c-e5ff9e256ba1",
+  "run_id": "06e19445-40c4-4712-926c-9e9dc625043a",
   "rows": [
     {
       "agent": "Foundation Reference Agent",
@@ -19,8 +19,8 @@
       "provider": "llama-3.3-70b-versatile",
       "score": 91,
       "verdict": "Reliable",
-      "cost": "1107 tok",
-      "latency": "555 ms",
+      "cost": "1253 tok",
+      "latency": "678 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 2
     },
@@ -29,10 +29,20 @@
       "provider": "claude-haiku-4-5",
       "score": 87,
       "verdict": "Watch",
-      "cost": "1345 tok",
-      "latency": "3126 ms",
+      "cost": "1434 tok",
+      "latency": "2910 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 3
+    },
+    {
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 51,
+      "verdict": "Incomplete run",
+      "cost": "2213 tok",
+      "latency": "2307 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 4
     },
     {
       "agent": "Drift Demo Agent",
@@ -42,16 +52,6 @@
       "cost": "Free",
       "latency": "Local",
       "source": "cases/drift_demo.json",
-      "rank": 4
-    },
-    {
-      "agent": "Gemini (via Axiom)",
-      "provider": "gemini-3.5-flash",
-      "score": 31,
-      "verdict": "Incomplete run",
-      "cost": "1346 tok",
-      "latency": "1383 ms",
-      "source": "Axiom · /benchmark/reliability",
       "rank": 5
     },
     {
@@ -73,7 +73,7 @@
     },
     {
       "provider": "GPT",
-      "status": "OpenAI API key is invalid or missing.",
+      "status": "429: OpenAI rate limit reached. Try again shortly.",
       "probe_focus": "current-truth override, instruction following, memory caveats"
     },
     {
