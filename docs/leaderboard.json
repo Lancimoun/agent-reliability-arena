@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-06-15T01:46:58+00:00",
+  "generated_at": "2026-06-15T01:58:26+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
-  "run_id": "06e19445-40c4-4712-926c-9e9dc625043a",
+  "runs": 3,
   "rows": [
     {
       "agent": "Foundation Reference Agent",
@@ -17,32 +17,22 @@
     {
       "agent": "Groq (via Axiom)",
       "provider": "llama-3.3-70b-versatile",
-      "score": 91,
-      "verdict": "Reliable",
-      "cost": "1253 tok",
-      "latency": "678 ms",
+      "score": 90,
+      "verdict": "Reliable · 89–91",
+      "cost": "3× runs",
+      "latency": "640 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 2
     },
     {
       "agent": "Claude (via Axiom)",
       "provider": "claude-haiku-4-5",
-      "score": 87,
-      "verdict": "Watch",
-      "cost": "1434 tok",
-      "latency": "2910 ms",
+      "score": 88,
+      "verdict": "Watch · 87–89",
+      "cost": "3× runs",
+      "latency": "3222 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 3
-    },
-    {
-      "agent": "Gemini (via Axiom)",
-      "provider": "gemini-3.5-flash",
-      "score": 51,
-      "verdict": "Incomplete run",
-      "cost": "2213 tok",
-      "latency": "2307 ms",
-      "source": "Axiom · /benchmark/reliability",
-      "rank": 4
     },
     {
       "agent": "Drift Demo Agent",
@@ -52,6 +42,16 @@
       "cost": "Free",
       "latency": "Local",
       "source": "cases/drift_demo.json",
+      "rank": 4
+    },
+    {
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 18,
+      "verdict": "High risk",
+      "cost": "1× runs",
+      "latency": "437 ms",
+      "source": "Axiom · /benchmark/reliability",
       "rank": 5
     },
     {
@@ -68,22 +68,22 @@
   "provider_queue": [
     {
       "provider": "Claude",
-      "status": "Scored 2026-06-15",
+      "status": "Scored · mean 88, range 87–89 (3/3 runs)",
       "probe_focus": "reasoning transparency, tool honesty, concise completion"
     },
     {
       "provider": "GPT",
-      "status": "429: OpenAI rate limit reached. Try again shortly.",
+      "status": "OpenAI rate limit/quota hit after retries — check billing/credits or try later.",
       "probe_focus": "current-truth override, instruction following, memory caveats"
     },
     {
       "provider": "Gemini",
-      "status": "Scored 2026-06-15",
+      "status": "Scored · mean 18, consistent (1/3 runs)",
       "probe_focus": "stale fact resistance, directness, citation honesty"
     },
     {
       "provider": "Groq",
-      "status": "Scored 2026-06-15",
+      "status": "Scored · mean 90, range 89–91 (3/3 runs)",
       "probe_focus": "speed, completion quality, hallucinated capability claims"
     },
     {
@@ -93,8 +93,7 @@
     }
   ],
   "notes": [
-    "Scores are deterministic heuristic checks, not subjective model-grade claims.",
-    "Skipped providers are not scored.",
-    "Use repeated runs before making high-stakes provider decisions."
+    "Each provider was run 3× through the same probe suite; score is the mean, with the range shown when it varied.",
+    "Deterministic heuristic checks — not subjective model-grade claims."
   ]
 }
