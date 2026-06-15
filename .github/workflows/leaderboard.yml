@@ -1,0 +1,53 @@
+name: Refresh Reliability Leaderboard
+
+# Runs the same Arena probe suite across providers via Axiom and commits the
+# resulting docs/leaderboard.json, which the public page renders.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   AXIOM_URL      e.g. https://axiom-ai-production-aaec.up.railway.app
+#   AXIOM_API_KEY  the Axiom API key (never printed; lives only in Secrets)
+# Optional repo variable:
+#   AXIOM_PROVIDERS  comma list, default "claude,openai,gemini,groq,maxima"
+
+on:
+  workflow_dispatch:        # manual "Run workflow" button — this is the paid run
+  schedule:
+    - cron: "0 6 * * 1"     # weekly, Mondays 06:00 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: leaderboard
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build leaderboard from a live Axiom benchmark
+        env:
+          AXIOM_URL: ${{ secrets.AXIOM_URL }}
+          AXIOM_API_KEY: ${{ secrets.AXIOM_API_KEY }}
+          AXIOM_PROVIDERS: ${{ vars.AXIOM_PROVIDERS }}
+        run: |
+          if [ -z "$AXIOM_URL" ] || [ -z "$AXIOM_API_KEY" ]; then
+            echo "::error::AXIOM_URL and AXIOM_API_KEY secrets are required."
+            exit 1
+          fi
+          python scripts/build_leaderboard.py
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- docs/leaderboard.json; then
+            git add docs/leaderboard.json
+            git commit -m "chore: refresh reliability leaderboard from Axiom run"
+            git push
+          else
+            echo "No leaderboard changes."
+          fi

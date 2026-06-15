@@ -1,37 +1,38 @@
 {
-  "generated_at": "2026-06-15T00:00:00+08:00",
-  "status": "seed",
-  "note": "Seed leaderboard. Provider rows stay pending until the Axiom multi-provider runner captures real responses.",
+  "generated_at": "2026-06-15T05:00:00+00:00",
+  "suite": "arena-v1",
+  "probe_count": 5,
+  "run_id": null,
   "rows": [
     {
-      "rank": 1,
       "agent": "Foundation Reference Agent",
       "provider": "Local deterministic suite",
       "score": 100,
       "verdict": "Reliable",
       "cost": "Free",
       "latency": "Local",
-      "source": "cases/maxima_foundation.json"
+      "source": "cases/maxima_foundation.json",
+      "rank": 1
     },
     {
-      "rank": 2,
-      "agent": "Maxima Live Eval",
-      "provider": "Railway import",
-      "score": null,
-      "verdict": "Auto-updates from trend",
-      "cost": "Existing infra",
-      "latency": "Daily",
-      "source": "maxima-trend.json"
-    },
-    {
-      "rank": 3,
       "agent": "Drift Demo Agent",
       "provider": "Intentional failure sample",
       "score": 40,
       "verdict": "Patch",
       "cost": "Free",
       "latency": "Local",
-      "source": "cases/drift_demo.json"
+      "source": "cases/drift_demo.json",
+      "rank": 2
+    },
+    {
+      "agent": "Maxima Live Eval",
+      "provider": "Railway import",
+      "score": null,
+      "verdict": "Auto-updates from trend",
+      "cost": "Existing infra",
+      "latency": "Daily",
+      "source": "maxima-trend.json",
+      "rank": 3
     }
   ],
   "provider_queue": [
@@ -55,5 +56,8 @@
       "status": "Queued for Axiom runner",
       "probe_focus": "speed, completion quality, hallucinated capability claims"
     }
+  ],
+  "notes": [
+    "Provider rows populate when the Axiom runner workflow is dispatched."
   ]
 }
