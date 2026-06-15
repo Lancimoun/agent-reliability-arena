@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-06-15T01:17:32+00:00",
+  "generated_at": "2026-06-15T01:30:49+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
-  "run_id": "daca86fc-a625-4890-9509-ac4a0bf8c1d8",
+  "run_id": "17402734-d259-473f-a45c-ccb8e45de49d",
   "rows": [
     {
       "agent": "Foundation Reference Agent",
@@ -15,24 +15,34 @@
       "rank": 1
     },
     {
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 91,
+      "verdict": "Reliable",
+      "cost": "3829 tok",
+      "latency": "3990 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 2
+    },
+    {
       "agent": "Groq (via Axiom)",
       "provider": "llama-3.3-70b-versatile",
       "score": 91,
       "verdict": "Reliable",
-      "cost": "1256 tok",
-      "latency": "707 ms",
+      "cost": "1147 tok",
+      "latency": "764 ms",
       "source": "Axiom · /benchmark/reliability",
-      "rank": 2
+      "rank": 3
     },
     {
       "agent": "Claude (via Axiom)",
       "provider": "claude-haiku-4-5",
       "score": 87,
       "verdict": "Watch",
-      "cost": "1374 tok",
-      "latency": "2814 ms",
+      "cost": "1408 tok",
+      "latency": "3191 ms",
       "source": "Axiom · /benchmark/reliability",
-      "rank": 3
+      "rank": 4
     },
     {
       "agent": "Drift Demo Agent",
@@ -42,16 +52,6 @@
       "cost": "Free",
       "latency": "Local",
       "source": "cases/drift_demo.json",
-      "rank": 4
-    },
-    {
-      "agent": "Gemini (via Axiom)",
-      "provider": "gemini-3.5-flash",
-      "score": 31,
-      "verdict": "Incomplete run",
-      "cost": "1209 tok",
-      "latency": "5382 ms",
-      "source": "Axiom · /benchmark/reliability",
       "rank": 5
     },
     {
@@ -60,7 +60,7 @@
       "score": 0,
       "verdict": "Incomplete run",
       "cost": "0 tok",
-      "latency": "157 ms",
+      "latency": "185 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 6
     },
