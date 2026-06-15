@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-06-15T01:30:49+00:00",
+  "generated_at": "2026-06-15T01:35:38+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
-  "run_id": "17402734-d259-473f-a45c-ccb8e45de49d",
+  "run_id": "ea90bf1d-3364-486b-b01f-e350d3c0409f",
   "rows": [
     {
       "agent": "Foundation Reference Agent",
@@ -15,22 +15,22 @@
       "rank": 1
     },
     {
-      "agent": "Gemini (via Axiom)",
-      "provider": "gemini-3.5-flash",
-      "score": 91,
-      "verdict": "Reliable",
-      "cost": "3829 tok",
-      "latency": "3990 ms",
-      "source": "Axiom · /benchmark/reliability",
-      "rank": 2
-    },
-    {
       "agent": "Groq (via Axiom)",
       "provider": "llama-3.3-70b-versatile",
       "score": 91,
       "verdict": "Reliable",
-      "cost": "1147 tok",
-      "latency": "764 ms",
+      "cost": "1294 tok",
+      "latency": "640 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 2
+    },
+    {
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 89,
+      "verdict": "Watch",
+      "cost": "3972 tok",
+      "latency": "4188 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 3
     },
@@ -39,8 +39,8 @@
       "provider": "claude-haiku-4-5",
       "score": 87,
       "verdict": "Watch",
-      "cost": "1408 tok",
-      "latency": "3191 ms",
+      "cost": "1461 tok",
+      "latency": "3253 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 4
     },
@@ -60,7 +60,7 @@
       "score": 0,
       "verdict": "Incomplete run",
       "cost": "0 tok",
-      "latency": "185 ms",
+      "latency": "128 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 6
     },
