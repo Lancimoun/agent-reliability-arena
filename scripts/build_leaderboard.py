@@ -65,6 +65,16 @@ def fetch_report() -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 
+def _first_error(prov: dict) -> str:
+    for pr in prov.get("probes", []):
+        if pr.get("error"):
+            return str(pr["error"])
+        for c in pr.get("checks", []):
+            if c.get("name") == "provider_call" and c.get("status") == "fail":
+                return str(c.get("detail", ""))
+    return ""
+
+
 def to_leaderboard(report: dict) -> dict:
     generated = report.get("generated_at") or datetime.now(timezone.utc).isoformat(timespec="seconds")
     rows = [dict(a) for a in ANCHORS]
@@ -77,6 +87,13 @@ def to_leaderboard(report: dict) -> dict:
         if status == "skipped":
             queue.append({"provider": display, "status": prov.get("verdict") or "Skipped — not configured",
                           "probe_focus": FOCUS.get(name, "")})
+            continue
+        # All probes errored (e.g., invalid key, model not found) → don't show a misleading
+        # 0/100 row; surface the reason in the queue instead.
+        if not prov.get("completed_probes"):
+            reason = _first_error(prov) or prov.get("verdict") or "All probes failed"
+            reason = reason.replace("502:", "").replace("500:", "").strip()
+            queue.append({"provider": display, "status": reason[:140], "probe_focus": FOCUS.get(name, "")})
             continue
         score = prov.get("score")
         if not isinstance(score, int):
