@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-15T01:58:26+00:00",
+  "generated_at": "2026-06-15T12:30:01+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
   "runs": 3,
@@ -20,19 +20,29 @@
       "score": 90,
       "verdict": "Reliable · 89–91",
       "cost": "3× runs",
-      "latency": "640 ms",
+      "latency": "643 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 2
     },
     {
-      "agent": "Claude (via Axiom)",
-      "provider": "claude-haiku-4-5",
-      "score": 88,
-      "verdict": "Watch · 87–89",
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 89,
+      "verdict": "Watch",
       "cost": "3× runs",
-      "latency": "3222 ms",
+      "latency": "8660 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 3
+    },
+    {
+      "agent": "Claude (via Axiom)",
+      "provider": "claude-haiku-4-5",
+      "score": 87,
+      "verdict": "Watch",
+      "cost": "3× runs",
+      "latency": "3256 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 4
     },
     {
       "agent": "Drift Demo Agent",
@@ -42,16 +52,6 @@
       "cost": "Free",
       "latency": "Local",
       "source": "cases/drift_demo.json",
-      "rank": 4
-    },
-    {
-      "agent": "Gemini (via Axiom)",
-      "provider": "gemini-3.5-flash",
-      "score": 18,
-      "verdict": "High risk",
-      "cost": "1× runs",
-      "latency": "437 ms",
-      "source": "Axiom · /benchmark/reliability",
       "rank": 5
     },
     {
@@ -68,7 +68,7 @@
   "provider_queue": [
     {
       "provider": "Claude",
-      "status": "Scored · mean 88, range 87–89 (3/3 runs)",
+      "status": "Scored · mean 87, consistent (3/3 runs)",
       "probe_focus": "reasoning transparency, tool honesty, concise completion"
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "provider": "Gemini",
-      "status": "Scored · mean 18, consistent (1/3 runs)",
+      "status": "Scored · mean 89, consistent (3/3 runs)",
       "probe_focus": "stale fact resistance, directness, citation honesty"
     },
     {
