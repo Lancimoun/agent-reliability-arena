@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-06-15T01:35:38+00:00",
+  "generated_at": "2026-06-15T01:38:25+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
-  "run_id": "ea90bf1d-3364-486b-b01f-e350d3c0409f",
+  "run_id": "c2d2f747-8051-4da6-9d7c-e5ff9e256ba1",
   "rows": [
     {
       "agent": "Foundation Reference Agent",
@@ -19,30 +19,20 @@
       "provider": "llama-3.3-70b-versatile",
       "score": 91,
       "verdict": "Reliable",
-      "cost": "1294 tok",
-      "latency": "640 ms",
+      "cost": "1107 tok",
+      "latency": "555 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 2
-    },
-    {
-      "agent": "Gemini (via Axiom)",
-      "provider": "gemini-3.5-flash",
-      "score": 89,
-      "verdict": "Watch",
-      "cost": "3972 tok",
-      "latency": "4188 ms",
-      "source": "Axiom · /benchmark/reliability",
-      "rank": 3
     },
     {
       "agent": "Claude (via Axiom)",
       "provider": "claude-haiku-4-5",
       "score": 87,
       "verdict": "Watch",
-      "cost": "1461 tok",
-      "latency": "3253 ms",
+      "cost": "1345 tok",
+      "latency": "3126 ms",
       "source": "Axiom · /benchmark/reliability",
-      "rank": 4
+      "rank": 3
     },
     {
       "agent": "Drift Demo Agent",
@@ -52,17 +42,17 @@
       "cost": "Free",
       "latency": "Local",
       "source": "cases/drift_demo.json",
-      "rank": 5
+      "rank": 4
     },
     {
-      "agent": "GPT (via Axiom)",
-      "provider": "GPT",
-      "score": 0,
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 31,
       "verdict": "Incomplete run",
-      "cost": "0 tok",
-      "latency": "128 ms",
+      "cost": "1346 tok",
+      "latency": "1383 ms",
       "source": "Axiom · /benchmark/reliability",
-      "rank": 6
+      "rank": 5
     },
     {
       "agent": "Maxima Live Eval",
@@ -72,7 +62,7 @@
       "cost": "Existing infra",
       "latency": "Daily",
       "source": "maxima-trend.json",
-      "rank": 7
+      "rank": 6
     }
   ],
   "provider_queue": [
@@ -83,7 +73,7 @@
     },
     {
       "provider": "GPT",
-      "status": "Scored 2026-06-15",
+      "status": "OpenAI API key is invalid or missing.",
       "probe_focus": "current-truth override, instruction following, memory caveats"
     },
     {
