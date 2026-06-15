@@ -125,6 +125,20 @@ def main() -> int:
     args = ap.parse_args()
 
     report = json.loads(Path(args.report).read_text(encoding="utf-8")) if args.report else fetch_report()
+
+    # Diagnostics: surface the first real error per failing provider (shows in the Action log).
+    for prov in report.get("providers", []):
+        errs = []
+        for pr in prov.get("probes", []):
+            if pr.get("error"):
+                errs.append(str(pr["error"]))
+            else:
+                for c in pr.get("checks", []):
+                    if c.get("name") == "provider_call" and c.get("status") == "fail":
+                        errs.append(str(c.get("detail", "")))
+        if errs:
+            print(f"[diag] {prov.get('provider')} error: {errs[0][:400]}")
+
     board = to_leaderboard(report)
     Path(args.out).write_text(json.dumps(board, indent=2, ensure_ascii=False), encoding="utf-8")
     scored = [r for r in board["rows"] if isinstance(r.get("score"), int)]
