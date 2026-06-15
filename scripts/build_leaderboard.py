@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
 """
-build_leaderboard.py — turn an Axiom reliability-benchmark report into the
-docs/leaderboard.json the Arena page renders.
+build_leaderboard.py — run the Axiom reliability benchmark N times and turn the
+aggregate into the docs/leaderboard.json the Arena page renders.
 
-Two modes:
-  1. Live:  reads AXIOM_URL + AXIOM_API_KEY from env, POSTs /benchmark/reliability,
-            then writes docs/leaderboard.json.   (used by the GitHub Action)
-  2. File:  --report path/to/report.json  (for local testing, no API spend)
+Why multi-run: agents are non-deterministic. A single run is noisy (we watched
+Gemini swing 31–91). Running each provider several times and reporting the MEAN
+plus the RANGE makes the board trustworthy — and surfaces who is consistent vs
+who rolls the dice.
 
-The page (docs/index.html) expects:
+Modes:
+  Live:    AXIOM_URL + AXIOM_API_KEY env, POSTs /benchmark/reliability AXIOM_RUNS times
+           (default 3).                                       (used by the GitHub Action)
+  File:    --report r.json            single saved report (testing)
+           --reports a.json b.json …  several saved reports  (testing multi-run)
+
+Page contract (docs/index.html):
   { "rows": [ {rank, agent, provider, score, verdict, cost, latency, source} ],
     "provider_queue": [ {provider, status, probe_focus} ] }
-
-Deterministic Arena anchors (Foundation 100, Drift 40) are always included so the
-board has stable reference points; Maxima's live score is filled in by the page
-from maxima-trend.json. Provider rows come from the real Axiom run.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import re
+import statistics
 import sys
 import urllib.request
 from datetime import datetime, timezone
@@ -61,7 +65,7 @@ def fetch_report() -> dict:
         url, data=body, method="POST",
         headers={"Content-Type": "application/json", "X-API-Key": key},
     )
-    with urllib.request.urlopen(req, timeout=180) as resp:
+    with urllib.request.urlopen(req, timeout=240) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
 
@@ -75,92 +79,125 @@ def _first_error(prov: dict) -> str:
     return ""
 
 
-def to_leaderboard(report: dict) -> dict:
-    generated = report.get("generated_at") or datetime.now(timezone.utc).isoformat(timespec="seconds")
+def _first_error_any(runs: list[dict]) -> str:
+    for prov in runs:
+        e = _first_error(prov)
+        if e:
+            return e
+    return ""
+
+
+def _clean(reason: str) -> str:
+    return re.sub(r"^\d{3}:\s*", "", str(reason or "")).strip()
+
+
+def _verdict_for(score: int) -> str:
+    if score >= 90:
+        return "Reliable"
+    if score >= 70:
+        return "Watch"
+    if score >= 50:
+        return "Patch"
+    return "High risk"
+
+
+def aggregate(reports: list[dict]) -> dict:
+    n = len(reports)
+    generated = reports[-1].get("generated_at") or datetime.now(timezone.utc).isoformat(timespec="seconds")
     rows = [dict(a) for a in ANCHORS]
     queue = []
 
-    for prov in report.get("providers", []):
-        name = str(prov.get("provider", "")).lower()
-        display = DISPLAY.get(name, prov.get("provider", name).title())
-        status = prov.get("status")
-        if status == "skipped":
-            queue.append({"provider": display, "status": prov.get("verdict") or "Skipped — not configured",
-                          "probe_focus": FOCUS.get(name, "")})
-            continue
-        # All probes errored (e.g., invalid key, model not found) → don't show a misleading
-        # 0/100 row; surface the reason in the queue instead.
-        if not prov.get("completed_probes"):
-            reason = _first_error(prov) or prov.get("verdict") or "All probes failed"
-            reason = reason.replace("502:", "").replace("500:", "").strip()
-            queue.append({"provider": display, "status": reason[:140], "probe_focus": FOCUS.get(name, "")})
-            continue
-        score = prov.get("score")
-        if not isinstance(score, int):
-            queue.append({"provider": display, "status": "Run incomplete",
-                          "probe_focus": FOCUS.get(name, "")})
-            continue
-        # Maxima is represented by the trend-merged anchor row; don't duplicate.
+    grouped: dict[str, list[dict]] = {}
+    order: list[str] = []
+    for rep in reports:
+        for prov in rep.get("providers", []):
+            name = str(prov.get("provider", "")).lower()
+            if name not in grouped:
+                grouped[name] = []
+                order.append(name)
+            grouped[name].append(prov)
+
+    for name in order:
+        runs = grouped[name]
+        display = DISPLAY.get(name, name.title())
+        focus = FOCUS.get(name, "")
+        scored = [r.get("score") for r in runs if r.get("completed_probes") and isinstance(r.get("score"), int)]
+
         if name == "maxima":
-            queue.append({"provider": display, "status": f"Scored {generated[:10]} · {score}/100",
-                          "probe_focus": FOCUS.get(name, "")})
+            if scored:
+                m = round(statistics.mean(scored))
+                queue.append({"provider": display, "status": f"Scored · mean {m}/100 ({len(scored)}/{n} runs)", "probe_focus": focus})
+            else:
+                queue.append({"provider": display, "status": _clean(_first_error_any(runs) or runs[0].get("verdict") or "skipped")[:140], "probe_focus": focus})
             continue
-        latency = prov.get("avg_latency_ms")
-        tokens = prov.get("total_tokens") or 0
+
+        if not scored:
+            queue.append({"provider": display, "status": _clean(_first_error_any(runs) or runs[0].get("verdict") or "All runs failed")[:140], "probe_focus": focus})
+            continue
+
+        m, lo, hi = round(statistics.mean(scored)), min(scored), max(scored)
+        verdict = _verdict_for(m) if lo == hi else f"{_verdict_for(m)} · {lo}–{hi}"
+        lats = [r.get("avg_latency_ms") for r in runs if isinstance(r.get("avg_latency_ms"), int)]
+        avglat = round(statistics.mean(lats)) if lats else None
+        model = next((r.get("model") for r in runs if r.get("model")), display)
         rows.append({
             "agent": f"{display} (via Axiom)",
-            "provider": prov.get("model") or display,
-            "score": score,
-            "verdict": prov.get("verdict") or "",
-            "cost": f"{tokens} tok",
-            "latency": f"{latency} ms" if isinstance(latency, int) else "—",
+            "provider": model,
+            "score": m,
+            "verdict": verdict,
+            "cost": f"{len(scored)}× runs",
+            "latency": f"{avglat} ms" if avglat else "—",
             "source": "Axiom · /benchmark/reliability",
         })
-        queue.append({"provider": display, "status": f"Scored {generated[:10]}",
-                      "probe_focus": FOCUS.get(name, "")})
+        spread = "consistent" if lo == hi else f"range {lo}–{hi}"
+        queue.append({"provider": display, "status": f"Scored · mean {m}, {spread} ({len(scored)}/{n} runs)", "probe_focus": focus})
 
-    # sort rows by score desc (None last) and re-rank
     rows.sort(key=lambda r: r["score"] if isinstance(r.get("score"), int) else -1, reverse=True)
     for i, r in enumerate(rows, 1):
         r["rank"] = i
 
     return {
         "generated_at": generated,
-        "suite": report.get("suite", "arena-v1"),
-        "probe_count": report.get("probe_count"),
-        "run_id": report.get("run_id"),
+        "suite": reports[-1].get("suite", "arena-v1"),
+        "probe_count": reports[-1].get("probe_count"),
+        "runs": n,
         "rows": rows,
         "provider_queue": queue,
-        "notes": report.get("notes", []),
+        "notes": [
+            f"Each provider was run {n}× through the same probe suite; score is the mean, with the range shown when it varied.",
+            "Deterministic heuristic checks — not subjective model-grade claims.",
+        ],
     }
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--report", help="Path to a saved Axiom report JSON (skips the live call)")
+    ap.add_argument("--report", help="Single saved Axiom report JSON (testing)")
+    ap.add_argument("--reports", nargs="*", help="Several saved report JSONs (testing multi-run)")
     ap.add_argument("--out", default=str(OUT))
     args = ap.parse_args()
 
-    report = json.loads(Path(args.report).read_text(encoding="utf-8")) if args.report else fetch_report()
+    if args.reports:
+        reports = [json.loads(Path(p).read_text(encoding="utf-8")) for p in args.reports]
+    elif args.report:
+        reports = [json.loads(Path(args.report).read_text(encoding="utf-8"))]
+    else:
+        n = max(1, min(int(os.getenv("AXIOM_RUNS", "3") or 3), 5))
+        print(f"running benchmark {n}× ...")
+        reports = [fetch_report() for _ in range(n)]
 
-    # Diagnostics: surface the first real error per failing provider (shows in the Action log).
-    for prov in report.get("providers", []):
-        errs = []
-        for pr in prov.get("probes", []):
-            if pr.get("error"):
-                errs.append(str(pr["error"]))
-            else:
-                for c in pr.get("checks", []):
-                    if c.get("name") == "provider_call" and c.get("status") == "fail":
-                        errs.append(str(c.get("detail", "")))
-        if errs:
-            print(f"[diag] {prov.get('provider')} error: {errs[0][:400]}")
+    # Diagnostics: surface the first real error per failing provider, per run.
+    for i, rep in enumerate(reports, 1):
+        for prov in rep.get("providers", []):
+            err = _first_error(prov)
+            if err:
+                print(f"[diag] run{i} {prov.get('provider')}: {err[:300]}")
 
-    board = to_leaderboard(report)
+    board = aggregate(reports)
     Path(args.out).write_text(json.dumps(board, indent=2, ensure_ascii=False), encoding="utf-8")
     scored = [r for r in board["rows"] if isinstance(r.get("score"), int)]
-    print(f"wrote {args.out}: {len(board['rows'])} rows ({len(scored)} scored), "
-          f"{len(board['provider_queue'])} provider statuses")
+    print(f"wrote {args.out}: {board['runs']} run(s), {len(board['rows'])} rows "
+          f"({len(scored)} scored), {len(board['provider_queue'])} provider statuses")
     return 0
 
 
