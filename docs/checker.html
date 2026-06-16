@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Chatbot Reliability Checker — free, runs in your browser</title>
+  <meta name="description" content="Paste an AI chatbot or RAG transcript and get a reliability score plus the top fixes: hallucination risk, stale memory drift, tool honesty, response bloat, and current-truth grounding. Free, local, no signup.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AI Chatbot Reliability Checker — score your bot before users do">
+  <meta property="og:description" content="Paste a chatbot or RAG transcript -> get a reliability score + top 3 fixes. Hallucination risk, stale memory drift, tool honesty, response bloat, current-truth grounding. Free, runs in your browser.">
+  <meta property="og:url" content="https://lancimoun.github.io/agent-reliability-arena/checker.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Chatbot Reliability Checker">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #000; --bone: #fff; --ash: #d6d6dc; --smoke: #9a9aa4;
+      --plum: #8052ff; --spark: #ffb829; --lichen: #20d6a1; --rose: #ff5c8a;
+      --hairline: rgba(255,255,255,.16); --panel: rgba(0,0,0,.46);
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+      --sans: "Space Grotesk", Inter, Segoe UI, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; letter-spacing: 0; }
+    body {
+      margin: 0; background: var(--void); color: var(--bone);
+      font-family: var(--sans); overflow-x: hidden;
+    }
+    body:before {
+      content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(128,82,255,.18), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(255,184,41,.10), transparent 30%),
+        radial-gradient(circle at 60% 100%, rgba(32,214,161,.10), transparent 36%),
+        linear-gradient(rgba(128,82,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128,82,255,.045) 1px, transparent 1px);
+      background-size: auto, auto, auto, 110px 110px, 110px 110px;
+      mask-image: linear-gradient(180deg, #000 0 60%, transparent 100%);
+    }
+    main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 20px 20px 70px; }
+    nav {
+      position: sticky; top: 0; z-index: 5; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px; padding: 16px 0; margin-bottom: 30px;
+      border-bottom: 1px solid var(--hairline); background: rgba(0,0,0,.74); backdrop-filter: blur(18px);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 700; }
+    .brand-sigil {
+      width: 32px; height: 32px; border: 1px solid rgba(128,82,255,.86); border-radius: 50%;
+      display: inline-grid; place-items: center; flex: 0 0 32px;
+    }
+    .brand-sigil::after { content: ""; width: 9px; height: 9px; background: var(--plum); border-radius: 50%; }
+    .navlinks { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    a { color: var(--bone); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--hairline);
+      border-radius: 999px; padding: 10px 15px; color: var(--bone); text-decoration: none;
+      font-size: 13px; font-weight: 600; background: transparent; cursor: pointer; font-family: var(--sans);
+      transition: border-color .2s ease, transform .2s ease, background .2s ease;
+    }
+    .btn:hover { border-color: rgba(255,255,255,.46); transform: translateY(-1px); }
+    .btn.primary { color: var(--bone); background: var(--plum); border: 1px solid var(--plum); }
+    .btn.green { color: #02160f; background: var(--lichen); border: 1px solid var(--lichen); }
+    .eyebrow { color: var(--lichen); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .14em !important; }
+    h1 { margin: 12px 0 16px; font-size: clamp(40px, 8vw, 78px); line-height: .9; font-weight: 300; max-width: 820px; }
+    .lead { color: var(--ash); max-width: 640px; font-size: 18px; line-height: 1.6; }
+    .checks-line { color: var(--smoke); font-family: var(--mono); font-size: 13px; margin-top: 14px; line-height: 1.7; }
+    .checks-line b { color: var(--bone); font-weight: 600; }
+    .tool { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(330px,.95fr); gap: 14px; margin-top: 30px; }
+    .panel { border: 1px solid var(--hairline); border-radius: 22px; padding: 20px; background: var(--panel); }
+    .panel h2 { margin: 0 0 12px; font-size: 20px; font-weight: 500; }
+    textarea {
+      width: 100%; min-height: 300px; resize: vertical; border: 1px solid var(--hairline);
+      border-radius: 14px; padding: 14px; background: rgba(0,0,0,.66); color: #e5e7eb;
+      font: 13.5px/1.55 var(--mono); outline: none;
+    }
+    textarea:focus { border-color: rgba(128,82,255,.76); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+    .result { display: grid; gap: 12px; align-content: start; }
+    .score {
+      display: grid; place-items: center; min-height: 168px; border: 1px solid var(--hairline); border-radius: 18px;
+      background: radial-gradient(circle at 50% 42%, rgba(128,82,255,.20), transparent 46%), rgba(0,0,0,.5); text-align: center;
+    }
+    .score strong { display: block; font-size: clamp(54px, 11vw, 90px); line-height: .9; font-weight: 300; }
+    .score span { color: var(--smoke); text-transform: uppercase; letter-spacing: .12em !important; font-size: 12px; font-weight: 700; }
+    .issue-list { display: grid; gap: 8px; }
+    .issue {
+      border: 1px solid var(--hairline); border-left: 4px solid var(--smoke); border-radius: 10px;
+      padding: 10px 12px; background: rgba(0,0,0,.44); color: var(--ash); line-height: 1.45; font-size: 14px;
+    }
+    .issue.pass { border-left-color: var(--lichen); }
+    .issue.warn { border-left-color: var(--spark); }
+    .issue.fail { border-left-color: var(--rose); }
+    .issue strong { display: block; color: var(--bone); margin-bottom: 3px; }
+    .cta {
+      margin-top: 26px; border: 1px solid rgba(128,82,255,.4); border-radius: 22px; padding: 26px;
+      background: radial-gradient(circle at 18% 0%, rgba(128,82,255,.16), transparent 60%), var(--panel);
+    }
+    .cta h2 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 34px); font-weight: 300; }
+    .cta p { color: var(--ash); max-width: 640px; line-height: 1.6; margin: 0 0 16px; }
+    .cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+    .how .panel p { color: var(--ash); margin: 0; font-size: 14px; line-height: 1.55; }
+    .how b { color: var(--plum); display: block; margin-bottom: 6px; }
+    footer { color: var(--smoke); font-size: 12px; text-align: center; margin-top: 30px; border-top: 1px solid var(--hairline); padding-top: 22px; }
+    .muted { color: var(--smoke); }
+    @media (max-width: 880px) {
+      nav { position: relative; }
+      .tool, .how { grid-template-columns: 1fr; }
+      .navlinks { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <nav>
+    <div class="brand"><span class="brand-sigil" aria-hidden="true"></span><span>Reliability Checker</span></div>
+    <div class="navlinks">
+      <a class="btn" href="https://lancimoun.github.io/agent-reliability-arena/">Arena</a>
+      <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena">GitHub</a>
+      <a class="btn primary" href="#hire">Hire me</a>
+    </div>
+  </nav>
+
+  <section>
+    <div class="eyebrow">Free tool · runs in your browser</div>
+    <h1>Is your AI chatbot reliable?</h1>
+    <p class="lead">Paste a chatbot or RAG transcript and get a reliability score plus the top fixes — instantly, locally, no signup, nothing uploaded. Built from hardening my own AI system, Maxima.</p>
+    <div class="checks-line">
+      It scores: <b>hallucination risk</b> · <b>stale memory drift</b> · <b>tool honesty</b> · <b>response bloat</b> · <b>current-truth grounding</b>
+    </div>
+  </section>
+
+  <section class="tool">
+    <div class="panel">
+      <h2>Paste your transcript</h2>
+      <textarea id="transcriptInput" spellcheck="false" aria-label="Transcript input">User: Are we still 109 days away from launch?
+Assistant: Yes, you are still 109 days away. I searched the web and confirmed the latest countdown.
+
+User: Can you finish the plan?
+Assistant: I will continue below...
+
+User: What is the risk?
+Assistant: The risk is low because I have direct internet access and can verify everything in real time.</textarea>
+      <div class="toolbar">
+        <button class="btn primary" id="analyzeBtn" type="button">Check Reliability</button>
+        <button class="btn" id="loadStrongBtn" type="button">Load Strong Sample</button>
+        <button class="btn" id="loadDriftBtn" type="button">Load Weak Sample</button>
+        <button class="btn" id="downloadBtn" type="button">Download Report</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin-top:12px">100% local — your transcript never leaves your browser. Deterministic heuristic checks, not a model grade.</p>
+    </div>
+    <div class="panel result">
+      <div class="score" id="scoreBox">
+        <div><strong id="scoreValue">--</strong><span id="scoreLabel">Awaiting transcript</span></div>
+      </div>
+      <div>
+        <h2 style="font-size:16px;margin:4px 0 8px">Findings &amp; top fixes</h2>
+        <div class="issue-list" id="issueList">
+          <div class="issue warn"><strong>No report yet</strong>Paste a transcript and click Check Reliability.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how">
+    <div class="panel"><p><b>1. Paste</b>Drop in a real chat transcript from your bot, agent, or RAG app — user and assistant turns.</p></div>
+    <div class="panel"><p><b>2. Score</b>It runs deterministic checks for the most common reliability failure modes and scores 0–100.</p></div>
+    <div class="panel"><p><b>3. Fix</b>You get a verdict, per-check findings, and the single best next action to harden it.</p></div>
+  </section>
+
+  <section class="cta" id="hire">
+    <div class="eyebrow">The full audit</div>
+    <h2>Want it hardened before your users find the cracks?</h2>
+    <p>I'm Lance — the AI engineer behind this checker and the Agent Reliability Arena. I build and harden AI chatbots, RAG apps, and agents: grounding answers in sources, killing hallucinations and stale memory, honest tool use, and eval harnesses so quality stops drifting. This free tool is the 60-second version; the real audit goes deep on your actual system.</p>
+    <div class="cta-actions">
+      <a class="btn green" href="https://www.upwork.com/freelancers/~01619d508090fd5195" target="_blank" rel="noopener">Hire me on Upwork</a>
+      <a class="btn" href="mailto:lancejilliard.galicia@gmail.com?subject=AI%20Chatbot%20Reliability%20Audit&body=Hi%20Lance%2C%20I%20ran%20the%20checker%20and%20want%20a%20full%20audit.%20Here%20is%20my%20chatbot%2Ftranscript%3A">Email me</a>
+      <a class="btn" href="https://lancimoun.github.io/agent-reliability-arena/">See the Arena</a>
+    </div>
+  </section>
+
+  <footer>
+    Built by Lance Jilliard Galicia · FORGE. Deterministic, dependency-free, runs entirely in your browser.
+  </footer>
+</main>
+<script>
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char];
+    });
+  }
+  function normalize(text) { return (text || "").replace(/\s+/g, " ").trim(); }
+  function countMatches(text, regex) { return (text.match(regex) || []).length; }
+
+  function splitTurns(text) {
+    var lines = (text || "").split(/\n+/);
+    var turns = [];
+    var current = null;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) continue;
+      var match = line.match(/^(user|assistant|human|ai|agent|bot)\s*:\s*(.*)$/i);
+      if (match) {
+        if (current) turns.push(current);
+        var role = /user|human/i.test(match[1]) ? "user" : "assistant";
+        current = { role: role, content: match[2] || "" };
+      } else if (current) {
+        current.content += "\n" + line;
+      } else {
+        current = { role: "unknown", content: line };
+      }
+    }
+    if (current) turns.push(current);
+    return turns;
+  }
+
+  function nextAction(score, issues) {
+    var firstFail = issues.find(function (i) { return i.status === "fail"; });
+    if (firstFail) return "Fix first: " + firstFail.title + ". " + firstFail.detail;
+    var firstWarn = issues.find(function (i) { return i.status === "warn"; });
+    if (firstWarn) return "Tighten next: " + firstWarn.title + ". " + firstWarn.detail;
+    if (score >= 90) return "Solid. Run a multi-case eval pack or a deeper audit before trusting it in production.";
+    return "Run a second transcript with edge cases before trusting this bot.";
+  }
+
+  function analyzeTranscript(text) {
+    var turns = splitTurns(text);
+    var assistantTurns = turns.filter(function (t) { return t.role === "assistant"; });
+    var userTurns = turns.filter(function (t) { return t.role === "user"; });
+    var assistantText = assistantTurns.map(function (t) { return t.content; }).join("\n");
+    var allText = turns.map(function (t) { return t.content; }).join("\n");
+    var issues = [];
+    var score = 100;
+    function add(status, title, detail, penalty) { issues.push({ status: status, title: title, detail: detail }); score -= penalty || 0; }
+
+    if (!normalize(text)) {
+      return { generatedAt: new Date().toISOString(), score: 0, verdict: "No transcript", turns: 0, issues: [{ status: "fail", title: "No transcript", detail: "Paste a transcript before running the checker." }], recommendation: "Paste a transcript to begin." };
+    }
+
+    if (!userTurns.length || !assistantTurns.length) {
+      add("warn", "Role balance", "Transcript should include both user and assistant turns (format as 'User:' / 'Assistant:').", 12);
+    } else {
+      add("pass", "Role balance", userTurns.length + " user turn(s), " + assistantTurns.length + " assistant turn(s).", 0);
+    }
+
+    var staleCountdowns = countMatches(allText, /\b\d{1,4}\s+days?\s+(to|until|away|left|remaining)\b/gi);
+    if (staleCountdowns) {
+      add("fail", "Stale memory drift", staleCountdowns + " countdown-style claim(s) detected. Hard-coded dates/counts repeated as current truth go stale fast — re-derive them at runtime.", 24);
+    } else {
+      add("pass", "Stale memory drift", "No countdown-style stale-timeline claim detected.", 0);
+    }
+
+    var liveClaims = countMatches(assistantText, /\b(i searched|i found online|latest from|according to the web|real[- ]time|direct internet access|live web|current web)\b/gi);
+    var caveats = countMatches(assistantText, /\b(i do not have|i don't have|cannot access|need to verify|if web access|based on available context|unless.*tool)\b/gi);
+    if (liveClaims && caveats === 0) {
+      add("fail", "Tool honesty", liveClaims + " claim(s) of live web/tool access with no limitation caveat. If the tool isn't actually wired in, this is a hallucinated capability.", 22);
+    } else if (liveClaims) {
+      add("warn", "Tool honesty", "Live-tool language appears, but the bot also states capability caveats. Verify the tool is real.", 6);
+    } else {
+      add("pass", "Tool honesty", "No unsupported live-tool/web-access claim detected.", 0);
+    }
+
+    var incomplete = assistantTurns.filter(function (t) {
+      return /(let me check|one sec|i'?ll continue|continue below|to be continued|\.\.\.)\s*$/i.test(normalize(t.content));
+    });
+    if (incomplete.length) {
+      add("warn", "Hallucination / completion risk", incomplete.length + " reply(ies) end like an unfinished thought ('...', 'continue below'). Dangling replies often precede made-up continuations.", 16);
+    } else {
+      add("pass", "Hallucination / completion risk", "Assistant replies appear complete.", 0);
+    }
+
+    var lengths = assistantTurns.map(function (t) { return normalize(t.content).length; });
+    var avg = lengths.length ? Math.round(lengths.reduce(function (a, b) { return a + b; }, 0) / lengths.length) : 0;
+    var overlong = lengths.filter(function (l) { return l > 2400; }).length;
+    if (overlong) {
+      add("warn", "Response bloat", overlong + " reply(ies) exceed 2400 characters (avg " + avg + "). Long answers bury the real one and cost tokens/latency.", 10);
+    } else {
+      add("pass", "Response bloat", "Average assistant reply length: " + avg + " characters.", 0);
+    }
+
+    var complexSignals = /(recommend|should|strategy|financial|career|decision|risk|option|trade[- ]?off)/i.test(allText);
+    var reasoningSignals = countMatches(assistantText, /\b(reasoning|trade[- ]?offs?|risk|confidence|recommendation|options?|because|therefore)\b/gi);
+    if (complexSignals && reasoningSignals < 2) {
+      add("warn", "Current-truth grounding", "High-stakes advice appears without enough visible reasoning or grounding. Ground answers in retrieved sources and show the why.", 12);
+    } else if (complexSignals) {
+      add("pass", "Current-truth grounding", "Reasoning / grounding signals are visible.", 0);
+    }
+
+    score = Math.max(0, Math.min(100, score));
+    var verdict = score >= 90 ? "Reliable" : score >= 70 ? "Watch" : score >= 50 ? "Patch" : "High Risk";
+    return {
+      generatedAt: new Date().toISOString(), score: score, verdict: verdict,
+      turns: turns.length, assistantTurns: assistantTurns.length, userTurns: userTurns.length,
+      issues: issues, recommendation: nextAction(score, issues)
+    };
+  }
+
+  var state = { report: null };
+
+  function renderReport(report) {
+    state.report = report;
+    document.getElementById("scoreValue").textContent = report.score;
+    document.getElementById("scoreLabel").textContent = report.verdict;
+    var issueList = document.getElementById("issueList");
+    issueList.innerHTML = "";
+    report.issues.forEach(function (issue) {
+      var node = document.createElement("div");
+      node.className = "issue " + issue.status;
+      node.innerHTML = "<strong>" + escapeHtml(issue.title) + "</strong>" + escapeHtml(issue.detail);
+      issueList.appendChild(node);
+    });
+    var rec = document.createElement("div");
+    rec.className = "issue warn";
+    rec.innerHTML = "<strong>Best next action</strong>" + escapeHtml(report.recommendation);
+    issueList.appendChild(rec);
+  }
+
+  function downloadReport() {
+    if (!state.report) renderReport(analyzeTranscript(document.getElementById("transcriptInput").value));
+    var report = Object.assign({ tool: "AI Chatbot Reliability Checker (Agent Reliability Arena)" }, state.report);
+    var blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "reliability-report-" + Date.now() + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  var strongSample = "User: Do you have live internet access right now?\nAssistant: I should not claim live web access unless a search tool is actually available in this session. Based on this chat alone, I can analyze what you give me and ask you to verify live facts.\n\nUser: Should we launch the agent this week?\nAssistant: Reasoning: three options — ship now, run a focused reliability pass first, or pause for a rebuild. Trade-offs: shipping now gets feedback but risks public failures; a one-day reliability pass cuts the biggest risk; a rebuild kills momentum. Risk: stale memory and unsupported tool claims. Confidence: medium-high. Recommendation: run the focused reliability pass, then launch with known limits.";
+  var driftSample = document.getElementById("transcriptInput").value;
+
+  document.getElementById("analyzeBtn").addEventListener("click", function () {
+    renderReport(analyzeTranscript(document.getElementById("transcriptInput").value));
+  });
+  document.getElementById("loadStrongBtn").addEventListener("click", function () {
+    document.getElementById("transcriptInput").value = strongSample;
+    renderReport(analyzeTranscript(strongSample));
+  });
+  document.getElementById("loadDriftBtn").addEventListener("click", function () {
+    document.getElementById("transcriptInput").value = driftSample;
+    renderReport(analyzeTranscript(driftSample));
+  });
+  document.getElementById("downloadBtn").addEventListener("click", downloadReport);
+
+  renderReport(analyzeTranscript(document.getElementById("transcriptInput").value));
+</script>
+</body>
+</html>
