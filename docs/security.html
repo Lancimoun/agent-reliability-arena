@@ -505,7 +505,20 @@
     function (name, type) { return "https://cloudflare-dns.com/dns-query?name=" + encodeURIComponent(name) + "&type=" + encodeURIComponent(type); },
     function (name, type) { return "https://dns.google/resolve?name=" + encodeURIComponent(name) + "&type=" + encodeURIComponent(type); }
   ];
-  var COMMON_DKIM_SELECTORS = ["google", "selector1", "selector2", "default", "mail", "email", "dkim", "k1", "s1", "s2"];
+  var COMMON_DKIM_SELECTORS = ["google", "20230601", "20210112", "20161025", "selector1", "selector2", "default", "mail", "email", "dkim", "k1", "s1", "s2"];
+  var CONSUMER_EMAIL_DOMAINS = {
+    "gmail.com": "Google Gmail",
+    "googlemail.com": "Google Gmail",
+    "outlook.com": "Microsoft Outlook",
+    "hotmail.com": "Microsoft Outlook",
+    "live.com": "Microsoft Outlook",
+    "icloud.com": "Apple iCloud Mail",
+    "me.com": "Apple iCloud Mail",
+    "yahoo.com": "Yahoo Mail",
+    "proton.me": "Proton Mail",
+    "protonmail.com": "Proton Mail",
+    "aol.com": "AOL Mail"
+  };
   var domainScanState = { report: null };
 
   function normalizeDomain(raw) {
@@ -554,7 +567,8 @@
     return m ? m[1].toLowerCase() : "";
   }
 
-  function buildDomainReport(domain, lookups) {
+  function buildDomainReport(domain, lookups, options) {
+    options = options || {};
     var findings = [], records = [];
     function addRecords(label, result) {
       var rows = (result.answer || []).map(dnsText).filter(Boolean);
@@ -578,6 +592,10 @@
     var spfRows = rootTxtRows.filter(function (row) { return /^v=spf1\b/i.test(row); });
     var dmarcTxt = dmarcRows.find(function (row) { return /^v=dmarc1\b/i.test(row); }) || "";
 
+    if (options.consumerProvider) {
+      findings.push(finding("warn", "Provider-domain scan, not mailbox scan", "You entered a personal address hosted by " + options.consumerProvider + ". This checks the provider's public DNS, not your private inbox, sessions, filters, passkeys, or recovery settings. Use the deep scan and provider security checkup for personal-account safety.", 0, 0));
+    }
+
     findings.push(mxRows.length
       ? finding("pass", "MX records found", "This domain can receive mail through " + mxRows.length + " advertised mail exchanger record(s).", 10, 10)
       : finding("fail", "No MX records found", "If this domain receives email, publish valid MX records. If it never receives email, document that intentionally.", 0, 10));
@@ -588,6 +606,8 @@
         findings.push(finding("pass", "SPF uses hard fail", "The SPF policy ends in -all, which is stricter once all legitimate senders are included.", 5, 5));
       } else if (/\s~all(?:\s|$)/i.test(spfRows[0])) {
         findings.push(finding("warn", "SPF uses soft fail", "The SPF policy ends in ~all. This is common during rollout, but hard fail is stronger when you are confident.", 3, 5));
+      } else if (/\bredirect\s*=/i.test(spfRows[0])) {
+        findings.push(finding("warn", "SPF delegates through redirect", "This SPF record delegates policy to another SPF record with redirect=. That is valid, but the scanner does not recursively score the redirected target yet.", 4, 5));
       } else {
         findings.push(finding("warn", "SPF policy ending is weak or unclear", "Add a clear all mechanism such as -all after confirming legitimate senders.", 0, 5));
       }
@@ -668,7 +688,9 @@
 
   async function scanDomain() {
     var input = document.getElementById("domainInput");
-    var domain = normalizeDomain(input.value);
+    var rawValue = String(input.value || "").trim();
+    var domain = normalizeDomain(rawValue);
+    var consumerProvider = rawValue.indexOf("@") >= 0 ? CONSUMER_EMAIL_DOMAINS[domain] : "";
     var list = document.getElementById("domainIssueList");
     var records = document.getElementById("dnsRecordList");
     if (!isValidDomain(domain)) {
@@ -692,7 +714,7 @@
       mta: await queryDns("_mta-sts." + domain, "TXT"),
       tls: await queryDns("_smtp._tls." + domain, "TXT")
     };
-    renderDomainReport(buildDomainReport(domain, lookups));
+    renderDomainReport(buildDomainReport(domain, lookups, { consumerProvider: consumerProvider }));
   }
 
   function downloadJsonReport(report, prefix) {
