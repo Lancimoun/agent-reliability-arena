@@ -8,7 +8,7 @@ Privacy rule: do not mention exact amounts, recipient names, bank details, case 
 
 ## LinkedIn Long Post
 
-I turned a real account security incident into a sanitized public field report.
+I turned a real account security incident into a sanitized public field report and defensive scanner.
 
 The biggest lesson:
 
@@ -27,9 +27,23 @@ That was the part that changed how I think about security.
 
 The obvious failure mode was unauthorized account activity. The hidden failure mode was persistence: a backdoor that could keep working even after the password changed.
 
-So I wrote a sanitized field report and built a free browser-only checklist.
+So I wrote a sanitized field report and built a free browser-based security scanner.
 
-It helps people score their own account security posture across:
+It now has two layers:
+
+1. A no-auth email/domain posture scanner
+2. A personal account-security checklist
+
+The scanner checks public DNS records for:
+
+- MX
+- SPF
+- DMARC
+- common DKIM selectors
+- MTA-STS
+- TLS reporting
+
+The checklist helps people score their own account security posture across:
 
 - unique passwords
 - password manager usage
@@ -40,7 +54,7 @@ It helps people score their own account security posture across:
 - recovery account hardening
 - offline backup codes
 
-Nothing is uploaded. The checklist runs locally in the browser.
+No passwords are collected. No inboxes are read. If an email address is entered, only the domain is queried through public DNS-over-HTTPS resolvers.
 
 This connects directly to my work on AI reliability.
 
@@ -50,7 +64,7 @@ That is the same mindset behind Agent Reliability Arena: test the hidden failure
 
 I am building in public, learning in public, and turning painful lessons into tools that help others build safer systems.
 
-Read the field report:
+Read the field report and try the scanner:
 https://lancimoun.github.io/agent-reliability-arena/security.html
 
 Try the AI reliability checker:
@@ -61,11 +75,20 @@ https://github.com/Lancimoun/agent-reliability-arena
 
 ## Short LinkedIn Version
 
-I turned a real account-security incident into a sanitized public field report and free browser-only checklist.
+I turned a real account-security incident into a sanitized public field report and free defensive scanner.
 
 The biggest lesson:
 
 Changing your password is not enough if an attacker planted OAuth or passkey persistence.
+
+The scanner checks public email-domain posture:
+
+- MX
+- SPF
+- DMARC
+- common DKIM selectors
+- MTA-STS
+- TLS reporting
 
 The checklist helps you review:
 
@@ -77,7 +100,7 @@ The checklist helps you review:
 - two-factor coverage
 - backup codes
 
-Nothing is uploaded. It runs locally in your browser.
+No passwords are collected. No inboxes are read.
 
 This is the same reliability mindset I use for AI agents: assume hidden failure modes exist, test for them, and verify the fix.
 
@@ -98,7 +121,7 @@ My work focuses on the failure modes that make AI products feel unsafe or untrus
 - missing decision reasoning
 - prompt and memory drift
 
-I created Agent Reliability Arena as a public evaluation harness for these issues. It includes a browser-only transcript analyzer, deterministic reliability checks, a seed leaderboard, and a sanitized security field report that demonstrates how I think about hidden failure modes, persistence, recovery paths, and verification.
+I created Agent Reliability Arena as a public evaluation harness for these issues. It includes a browser-only transcript analyzer, deterministic reliability checks, a seed leaderboard, and a sanitized security field report with a defensive email-domain posture scanner. This demonstrates how I think about hidden failure modes, persistence, recovery paths, and verification.
 
 What I can do for your project:
 
@@ -113,27 +136,27 @@ If you are shipping an AI assistant, chatbot, or RAG workflow, I can help you te
 Portfolio:
 https://lancimoun.github.io/agent-reliability-arena/
 
-Security field report:
+Security field report and scanner:
 https://lancimoun.github.io/agent-reliability-arena/security.html
 
 ## Upwork Proposal Paragraph
 
-I can help audit and harden your AI chatbot for reliability issues like stale memory, hallucinated tool access, incomplete replies, weak RAG recall, and unclear reasoning. I built a public evaluation project called Agent Reliability Arena, plus a browser-only transcript checker and a sanitized security field report showing how I approach hidden failure modes and verification. I can review your transcript or agent behavior, score the main risks, and deliver a prioritized fix plan you can implement quickly.
+I can help audit and harden your AI chatbot for reliability issues like stale memory, hallucinated tool access, incomplete replies, weak RAG recall, and unclear reasoning. I built a public evaluation project called Agent Reliability Arena, plus a browser-only transcript checker and a sanitized security field report with a defensive email-domain posture scanner. I can review your transcript or agent behavior, score the main risks, and deliver a prioritized fix plan you can implement quickly.
 
 ## GitHub Repo Description
 
-Agent Reliability Arena is a lightweight evaluation harness for AI agents, chatbots, and RAG apps. It checks practical failure modes such as stale memory, unsupported tool claims, incomplete replies, response bloat, missing reasoning, and current-truth drift. The public GitHub Pages demo includes a transcript analyzer, seed leaderboard, Maxima trend view, productized audit offer, and a sanitized security field report that connects reliability engineering with account-security failure-mode thinking.
+Agent Reliability Arena is a lightweight evaluation harness for AI agents, chatbots, and RAG apps. It checks practical failure modes such as stale memory, unsupported tool claims, incomplete replies, response bloat, missing reasoning, and current-truth drift. The public GitHub Pages demo includes a transcript analyzer, seed leaderboard, Maxima trend view, productized audit offer, and a sanitized security field report with a defensive email-domain posture scanner.
 
 ## GitHub Release / Commit Summary
 
 Launch Security Field Report for Agent Reliability Arena.
 
-This update adds a sanitized public account-security field report, a local-only security checklist, social sharing metadata, a custom Open Graph image, and homepage links from the Arena demo. The report intentionally excludes exact amounts, account identifiers, recipient details, bank details, case numbers, and private evidence files. It positions the incident as an educational reliability artifact: hidden persistence, recovery paths, and verification matter in both security response and AI-agent quality.
+This update adds a sanitized public account-security field report, a no-auth email-domain posture scanner, a local security checklist, social sharing metadata, a custom Open Graph image, and homepage links from the Arena demo. The report intentionally excludes exact amounts, account identifiers, recipient details, bank details, case numbers, and private evidence files. It positions the incident as an educational reliability artifact: hidden persistence, recovery paths, and verification matter in both security response and AI-agent quality.
 
 ## GitHub README Badge-Style Blurb
 
 Security Field Report:
-A sanitized real-world incident write-up showing how hidden persistence, OAuth grants, passkeys, recovery paths, and evidence-hiding filters can turn a password leak into a deeper reliability problem.
+A sanitized real-world incident write-up and defensive scanner showing how hidden persistence, OAuth grants, passkeys, recovery paths, and evidence-hiding filters can turn a password leak into a deeper reliability problem.
 
 Read it here:
 https://lancimoun.github.io/agent-reliability-arena/security.html
@@ -142,7 +165,7 @@ https://lancimoun.github.io/agent-reliability-arena/security.html
 
 I turned a real account-security scare into something useful.
 
-I wrote a sanitized field report and built a free checklist that helps people check account security basics most of us forget:
+I wrote a sanitized field report and built a free scanner/checklist that helps people check account security basics most of us forget:
 
 - connected apps
 - passkeys
@@ -152,7 +175,7 @@ I wrote a sanitized field report and built a free checklist that helps people ch
 - two-factor setup
 - backup codes
 
-No exact private details are included, and the checklist runs locally in your browser.
+No exact private details are included. No passwords are collected, and no inboxes are read.
 
 This also connects to what I am building with AI reliability: finding hidden failure modes before they cause damage.
 

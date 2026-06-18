@@ -37,6 +37,17 @@ The public report intentionally excludes exact financial amounts, recipient name
 
 ![Security field report social preview](docs/assets/security-field-report.png)
 
+## Email Domain Security Scanner
+
+The field report now includes a defensive no-auth scanner for email/domain posture:
+
+- enter an email address or domain you own
+- scan public DNS records for MX, SPF, DMARC, common DKIM selectors, MTA-STS, and TLS-RPT
+- get a deterministic score and prioritized fix plan
+- download a JSON report or copy a remediation summary
+
+This first scanner layer does not collect passwords, read inboxes, bypass login systems, or store private account data. It only queries public DNS records. See [Security Scanner Plan](docs/security_scanner_plan.md) for the roadmap toward Gmail settings checks, Google Security Checkup guidance, breach exposure checks, and report generation.
+
 ## Why It Exists
 
 Most demos show agents working once. Real systems need proof that they keep working over time.

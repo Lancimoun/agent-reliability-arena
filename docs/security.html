@@ -4,17 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Anatomy of an Account Takeover — and the free tool to score your own security</title>
-  <meta name="description" content="A real account-takeover, the password-proof backdoor almost nobody checks, and the security lessons that came from the response. Plus a free 60-second tool to score your own account security and find the gap to close first.">
+  <meta name="description" content="A sanitized account-takeover field report with a defensive email-domain scanner for SPF, DMARC, DKIM, MX, MTA-STS, and TLS-RPT, plus a free account-security checklist.">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Anatomy of an Account Takeover — and how I got everything back">
-  <meta property="og:description" content="A hidden OAuth backdoor, evidence-hiding filters, and the lessons from a real incident response. Plus a free tool to score your own account security.">
+  <meta property="og:description" content="A sanitized field report plus a defensive scanner for SPF, DMARC, DKIM, MX, MTA-STS, TLS-RPT, and account-security gaps.">
   <meta property="og:url" content="https://lancimoun.github.io/agent-reliability-arena/security.html">
   <meta property="og:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/security-field-report.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Anatomy of an Account Takeover">
-  <meta name="twitter:description" content="A sanitized security field report and a free browser-only checklist for account security gaps.">
+  <meta name="twitter:description" content="A sanitized security field report with a defensive email-domain scanner and browser-only account checklist.">
   <meta name="twitter:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/security-field-report.png">
   <link rel="canonical" href="https://lancimoun.github.io/agent-reliability-arena/security.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -109,6 +109,34 @@
     .check span { font-size: 14px; line-height: 1.45; color: var(--ash); }
     .check input:checked ~ span { color: var(--bone); }
     .toolbar { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+    .scanner-grid { display: grid; grid-template-columns: minmax(0,1.02fr) minmax(320px,.98fr); gap: 14px; margin-top: 18px; }
+    .input-row { display: flex; gap: 9px; align-items: stretch; flex-wrap: wrap; }
+    .scan-input {
+      flex: 1 1 280px; min-width: min(100%, 280px); border: 1px solid var(--hairline);
+      border-radius: 999px; background: rgba(0,0,0,.48); color: var(--bone);
+      font-family: var(--sans); font-size: 15px; padding: 12px 15px; outline: none;
+    }
+    .scan-input:focus { border-color: rgba(32,214,161,.72); box-shadow: 0 0 0 3px rgba(32,214,161,.12); }
+    .mini-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+    .mini-card {
+      border: 1px solid var(--hairline); border-radius: 14px; padding: 12px;
+      background: rgba(0,0,0,.36); min-height: 82px;
+    }
+    .mini-card b { display: block; font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+    .mini-card span { color: var(--smoke); font-size: 12px; line-height: 1.4; }
+    .dns-records { display: grid; gap: 8px; margin-top: 10px; }
+    .dns-record {
+      border: 1px solid var(--hairline); border-radius: 10px; padding: 10px 12px;
+      background: rgba(0,0,0,.42); color: var(--ash); font-family: var(--mono);
+      font-size: 12px; line-height: 1.45; overflow-wrap: anywhere;
+    }
+    .source-note { color: var(--smoke); font-size: 12px; line-height: 1.55; margin-top: 10px; }
+    .future-list { display: grid; gap: 9px; margin-top: 12px; }
+    .future-item {
+      border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 13px;
+      background: rgba(0,0,0,.34); color: var(--ash); line-height: 1.5; font-size: 14px;
+    }
+    .future-item strong { color: var(--bone); display: block; margin-bottom: 3px; }
     .result { display: grid; gap: 12px; align-content: start; }
     .score {
       display: grid; place-items: center; min-height: 168px; border: 1px solid var(--hairline); border-radius: 18px;
@@ -136,9 +164,10 @@
     .muted { color: var(--smoke); }
     @media (max-width: 880px) {
       nav { position: relative; }
-      .tool { grid-template-columns: 1fr; }
+      .tool, .scanner-grid { grid-template-columns: 1fr; }
       .navlinks { justify-content: flex-start; }
       .stats { grid-template-columns: 1fr; }
+      .mini-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -150,6 +179,7 @@
       <a class="btn" href="https://lancimoun.github.io/agent-reliability-arena/">Arena</a>
       <a class="btn" href="checker.html">Reliability Checker</a>
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena">GitHub</a>
+      <a class="btn" href="#scanner">Domain scanner</a>
       <a class="btn primary" href="#tool">Score my security</a>
     </div>
   </nav>
@@ -220,6 +250,57 @@
 
   <hr class="divider">
 
+  <section id="scanner">
+    <div class="eyebrow" style="color:var(--spark)">Defensive scanner · no password required</div>
+    <h1 style="font-size:clamp(30px,5.5vw,52px)">Scan your email domain posture</h1>
+    <p class="lead">Enter an email address or domain you own. The scanner checks public DNS records for MX, SPF, DMARC, DKIM selectors, MTA-STS, and TLS reporting. If you enter an email, only the domain is queried.</p>
+    <div class="scanner-grid">
+      <div class="panel">
+        <h2>Email/domain scanner</h2>
+        <div class="input-row">
+          <input class="scan-input" id="domainInput" type="text" inputmode="email" autocomplete="off" placeholder="you@example.com or example.com" aria-label="Email address or domain to scan">
+          <button class="btn primary" id="scanDomainBtn" type="button">Scan posture</button>
+        </div>
+        <p class="source-note">Only scan domains you own or have permission to assess. This uses public DNS-over-HTTPS lookups through Cloudflare/Google resolvers; it does not collect passwords, read inboxes, or test login systems.</p>
+        <div class="mini-grid">
+          <div class="mini-card"><b id="domainScore">--</b><span>domain security score</span></div>
+          <div class="mini-card"><b id="domainVerdict">Awaiting scan</b><span>MX · SPF · DMARC · DKIM · MTA-STS</span></div>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="downloadDomainReportBtn" type="button">Download DNS report</button>
+          <button class="btn" id="copyDomainReportBtn" type="button">Copy fix plan</button>
+          <a class="btn green" id="emailDomainReportBtn" href="mailto:lancejilliard.galicia@gmail.com?subject=Security%20Posture%20Audit&body=Hi%20Lance%2C%20I%20want%20help%20reviewing%20my%20email%20security%20posture.">Ask Lance to audit</a>
+        </div>
+      </div>
+      <div class="panel result">
+        <h2>Scanner findings</h2>
+        <div class="issue-list" id="domainIssueList">
+          <div class="issue warn"><strong>No domain scan yet</strong>Enter a domain you own, then run the scanner. Public DNS results can reveal missing mail-authentication controls before attackers abuse them.</div>
+        </div>
+        <h2 style="font-size:16px;margin:8px 0 0">Observed DNS records</h2>
+        <div class="dns-records" id="dnsRecordList">
+          <div class="dns-record">No DNS records loaded yet.</div>
+        </div>
+      </div>
+    </div>
+    <div class="scanner-grid">
+      <div class="panel">
+        <h2>Next layer: Gmail deep scan</h2>
+        <p class="muted">The public scanner stays no-auth. A future private mode can use explicit Google OAuth to review settings that public DNS cannot see.</p>
+        <div class="future-list">
+          <div class="future-item"><strong>Filters and forwarding</strong>Detect auto-delete, mark-read, or forwarding rules that hide security alerts.</div>
+          <div class="future-item"><strong>Send-as aliases and POP/IMAP</strong>Flag unexpected send identities and legacy access paths.</div>
+          <div class="future-item"><strong>Connected apps checklist</strong>Guide users to review OAuth grants, passkeys, sessions, and recovery paths in Google Security Checkup.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Hard boundary</h2>
+        <p class="muted">This tool is for defensive self-assessment. It will not ask for passwords, bypass login, read message bodies, scan third-party accounts without permission, or store private incident evidence.</p>
+        <p class="muted">When deeper account scanning exists, it should be opt-in, least-privilege, auditable, token-minimized, and easy to disconnect.</p>
+      </div>
+    </div>
+  </section>
+
   <section id="tool">
     <div class="eyebrow" style="color:var(--lichen)">Free tool · runs in your browser</div>
     <h1 style="font-size:clamp(30px,5.5vw,52px)">Score your own account security</h1>
@@ -282,6 +363,220 @@
     { id: "backup",     w:  6, label: "Your backup / recovery codes are saved offline", fix: "Save backup codes somewhere offline so you're never locked out — and a thief can't grab them from your account." },
     { id: "recovery",   w:  6, label: "Your recovery email/phone are current, verified, and secured", fix: "Your recovery email is a skeleton key. Make sure it's yours, has a unique password, and has 2FA on." }
   ];
+
+  var DNS_RESOLVERS = [
+    function (name, type) { return "https://cloudflare-dns.com/dns-query?name=" + encodeURIComponent(name) + "&type=" + encodeURIComponent(type); },
+    function (name, type) { return "https://dns.google/resolve?name=" + encodeURIComponent(name) + "&type=" + encodeURIComponent(type); }
+  ];
+  var COMMON_DKIM_SELECTORS = ["google", "selector1", "selector2", "default", "mail", "email", "dkim", "k1", "s1", "s2"];
+  var domainScanState = { report: null };
+
+  function normalizeDomain(raw) {
+    var value = String(raw || "").trim().toLowerCase();
+    value = value.replace(/^mailto:/, "").replace(/^https?:\/\//, "");
+    if (value.indexOf("@") >= 0) value = value.split("@").pop();
+    value = value.split("/")[0].split("?")[0].split("#")[0].replace(/\.$/, "");
+    return value;
+  }
+
+  function isValidDomain(domain) {
+    return /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(domain);
+  }
+
+  function dnsText(record) {
+    return String(record && (record.data || record.Data || "") || "").replace(/^"|"$/g, "").replace(/"\s+"/g, "");
+  }
+
+  async function queryDns(name, type) {
+    var lastError = null;
+    for (var i = 0; i < DNS_RESOLVERS.length; i++) {
+      try {
+        var res = await fetch(DNS_RESOLVERS[i](name, type), { headers: { "accept": "application/dns-json" } });
+        if (!res.ok) throw new Error("DNS resolver returned HTTP " + res.status);
+        var json = await res.json();
+        return {
+          name: name,
+          type: type,
+          status: json.Status,
+          answer: json.Answer || [],
+          resolver: i === 0 ? "Cloudflare DNS-over-HTTPS" : "Google DNS-over-HTTPS"
+        };
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    return { name: name, type: type, status: "error", answer: [], error: lastError ? lastError.message : "DNS lookup failed" };
+  }
+
+  function finding(kind, title, text, points, max) {
+    return { kind: kind, title: title, text: text, points: points || 0, max: max || 0 };
+  }
+
+  function parseDmarcPolicy(txt) {
+    var m = String(txt || "").match(/(?:^|;)\s*p\s*=\s*([a-z]+)/i);
+    return m ? m[1].toLowerCase() : "";
+  }
+
+  function buildDomainReport(domain, lookups) {
+    var findings = [], records = [];
+    function addRecords(label, result) {
+      var rows = (result.answer || []).map(dnsText).filter(Boolean);
+      records.push({ label: label, name: result.name, type: result.type, values: rows, error: result.error || "" });
+      return rows;
+    }
+
+    var mxRows = addRecords("MX", lookups.mx);
+    var rootTxtRows = addRecords("TXT", lookups.txt);
+    var dmarcRows = addRecords("DMARC", lookups.dmarc);
+    var mtaRows = addRecords("MTA-STS", lookups.mta);
+    var tlsRows = addRecords("TLS-RPT", lookups.tls);
+    var dkimHits = [];
+    lookups.dkim.forEach(function (item) {
+      var rows = addRecords("DKIM " + item.selector, item.result);
+      rows.forEach(function (row) {
+        if (/v\s*=\s*dkim1/i.test(row) || /p\s*=/i.test(row)) dkimHits.push({ selector: item.selector, value: row });
+      });
+    });
+
+    var spfRows = rootTxtRows.filter(function (row) { return /^v=spf1\b/i.test(row); });
+    var dmarcTxt = dmarcRows.find(function (row) { return /^v=dmarc1\b/i.test(row); }) || "";
+
+    findings.push(mxRows.length
+      ? finding("pass", "MX records found", "This domain can receive mail through " + mxRows.length + " advertised mail exchanger record(s).", 10, 10)
+      : finding("fail", "No MX records found", "If this domain receives email, publish valid MX records. If it never receives email, document that intentionally.", 0, 10));
+
+    if (spfRows.length === 1) {
+      findings.push(finding("pass", "SPF record found", "SPF exists and gives receivers a policy for mail sent from this domain.", 15, 15));
+      if (/\s-all(?:\s|$)/i.test(spfRows[0])) {
+        findings.push(finding("pass", "SPF uses hard fail", "The SPF policy ends in -all, which is stricter once all legitimate senders are included.", 5, 5));
+      } else if (/\s~all(?:\s|$)/i.test(spfRows[0])) {
+        findings.push(finding("warn", "SPF uses soft fail", "The SPF policy ends in ~all. This is common during rollout, but hard fail is stronger when you are confident.", 3, 5));
+      } else {
+        findings.push(finding("warn", "SPF policy ending is weak or unclear", "Add a clear all mechanism such as -all after confirming legitimate senders.", 0, 5));
+      }
+    } else if (spfRows.length > 1) {
+      findings.push(finding("fail", "Multiple SPF records found", "Multiple SPF TXT records can cause SPF to fail. Merge them into one v=spf1 record.", 3, 20));
+    } else {
+      findings.push(finding("fail", "SPF missing", "Publish an SPF TXT record so receivers know which services can send mail for this domain.", 0, 20));
+    }
+
+    if (dmarcTxt) {
+      findings.push(finding("pass", "DMARC record found", "DMARC exists at _dmarc." + domain + ".", 15, 15));
+      var policy = parseDmarcPolicy(dmarcTxt);
+      if (policy === "reject") {
+        findings.push(finding("pass", "DMARC enforcement is strongest", "Policy is p=reject, which tells receivers to reject failing mail.", 15, 15));
+      } else if (policy === "quarantine") {
+        findings.push(finding("warn", "DMARC enforcement is partial", "Policy is p=quarantine. This is useful, but p=reject is stronger after monitoring.", 11, 15));
+      } else if (policy === "none") {
+        findings.push(finding("warn", "DMARC is monitoring only", "Policy is p=none. Good for visibility, but it does not block spoofed mail.", 5, 15));
+      } else {
+        findings.push(finding("fail", "DMARC policy missing", "Add p=none, p=quarantine, or p=reject to make the DMARC policy explicit.", 0, 15));
+      }
+      findings.push(/rua\s*=/i.test(dmarcTxt)
+        ? finding("pass", "DMARC reporting is enabled", "Aggregate reports are configured with rua=, which helps you see spoofing attempts.", 5, 5)
+        : finding("warn", "DMARC reporting missing", "Add rua=mailto:... so you can monitor authentication failures and spoofing attempts.", 0, 5));
+    } else {
+      findings.push(finding("fail", "DMARC missing", "Publish _dmarc." + domain + " with at least v=DMARC1; p=none; rua=mailto:...", 0, 35));
+    }
+
+    findings.push(dkimHits.length
+      ? finding("pass", "DKIM selector observed", "Found DKIM-looking records for selector(s): " + dkimHits.map(function (d) { return d.selector; }).join(", ") + ".", 15, 15)
+      : finding("warn", "No common DKIM selector found", "No DKIM record was found for common selectors. This is not definitive; check your mail provider's exact DKIM selector.", 0, 15));
+
+    findings.push(mtaRows.some(function (row) { return /^v=STSv1/i.test(row); })
+      ? finding("pass", "MTA-STS policy advertised", "The domain advertises MTA-STS, which helps receiving servers require TLS for inbound mail.", 10, 10)
+      : finding("warn", "MTA-STS not advertised", "Consider MTA-STS after SPF/DKIM/DMARC are stable, especially for higher-risk domains.", 0, 10));
+
+    findings.push(tlsRows.some(function (row) { return /^v=TLSRPTv1/i.test(row); })
+      ? finding("pass", "TLS reporting advertised", "TLS-RPT exists, so delivery security failures can be reported.", 10, 10)
+      : finding("warn", "TLS reporting not advertised", "Consider TLS-RPT so you can see mail transport security failures.", 0, 10));
+
+    var score = findings.reduce(function (sum, f) { return sum + f.points; }, 0);
+    var verdict = score >= 90 ? "Hardened" : score >= 70 ? "Solid" : score >= 45 ? "Needs Work" : "Exposed";
+    return { tool: "FORGE Email Domain Security Scanner", generatedAt: new Date().toISOString(), domain: domain, score: Math.max(0, Math.min(100, score)), verdict: verdict, findings: findings, records: records };
+  }
+
+  function renderDomainReport(report) {
+    domainScanState.report = report;
+    document.getElementById("domainScore").textContent = report.score;
+    document.getElementById("domainVerdict").textContent = report.verdict;
+    var list = document.getElementById("domainIssueList");
+    list.innerHTML = "";
+    var summary = document.createElement("div");
+    summary.className = "issue " + (report.score >= 70 ? "warn" : "fail");
+    summary.innerHTML = "<strong>" + escapeHtml(report.domain) + " · " + report.score + "/100</strong>" + escapeHtml("Verdict: " + report.verdict + ". Prioritize fail/warn items before launch.");
+    list.appendChild(summary);
+    report.findings.forEach(function (f) {
+      var node = document.createElement("div");
+      node.className = "issue " + f.kind;
+      node.innerHTML = "<strong>" + escapeHtml(f.title) + "</strong>" + escapeHtml(f.text);
+      list.appendChild(node);
+    });
+
+    var records = document.getElementById("dnsRecordList");
+    records.innerHTML = "";
+    report.records.forEach(function (r) {
+      var node = document.createElement("div");
+      node.className = "dns-record";
+      var values = r.values.length ? r.values.join("\n") : (r.error ? "Lookup error: " + r.error : "No records observed");
+      node.textContent = r.label + " · " + r.name + " · " + r.type + "\n" + values;
+      records.appendChild(node);
+    });
+
+    var fixes = report.findings.filter(function (f) { return f.kind !== "pass"; }).slice(0, 5).map(function (f) { return "- " + f.title + ": " + f.text; }).join("%0D%0A");
+    document.getElementById("emailDomainReportBtn").href =
+      "mailto:lancejilliard.galicia@gmail.com?subject=" + encodeURIComponent("Security posture audit for " + report.domain) +
+      "&body=" + encodeURIComponent("Hi Lance,\n\nI scanned " + report.domain + " and got " + report.score + "/100 (" + report.verdict + ").\n\nTop findings:\n" + (fixes ? decodeURIComponent(fixes) : "- No major findings") + "\n\nCan you help me harden this?");
+  }
+
+  async function scanDomain() {
+    var input = document.getElementById("domainInput");
+    var domain = normalizeDomain(input.value);
+    var list = document.getElementById("domainIssueList");
+    var records = document.getElementById("dnsRecordList");
+    if (!isValidDomain(domain)) {
+      list.innerHTML = '<div class="issue fail"><strong>Invalid domain</strong>Enter an email address or domain like you@example.com or example.com.</div>';
+      return;
+    }
+
+    document.getElementById("domainScore").textContent = "...";
+    document.getElementById("domainVerdict").textContent = "Scanning";
+    list.innerHTML = '<div class="issue warn"><strong>Scanning public DNS</strong>Checking MX, SPF, DMARC, common DKIM selectors, MTA-STS, and TLS-RPT.</div>';
+    records.innerHTML = '<div class="dns-record">DNS lookup in progress...</div>';
+
+    var dkimResults = await Promise.all(COMMON_DKIM_SELECTORS.map(async function (selector) {
+      return { selector: selector, result: await queryDns(selector + "._domainkey." + domain, "TXT") };
+    }));
+    var lookups = {
+      mx: await queryDns(domain, "MX"),
+      txt: await queryDns(domain, "TXT"),
+      dmarc: await queryDns("_dmarc." + domain, "TXT"),
+      dkim: dkimResults,
+      mta: await queryDns("_mta-sts." + domain, "TXT"),
+      tls: await queryDns("_smtp._tls." + domain, "TXT")
+    };
+    renderDomainReport(buildDomainReport(domain, lookups));
+  }
+
+  function downloadJsonReport(report, prefix) {
+    var blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = prefix + "-" + Date.now() + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function domainFixPlan(report) {
+    if (!report) return "Run a domain scan first.";
+    var fixes = report.findings.filter(function (f) { return f.kind !== "pass"; });
+    if (!fixes.length) return report.domain + " scored " + report.score + "/100. Re-check after DNS/provider changes.";
+    return report.domain + " scored " + report.score + "/100 (" + report.verdict + ").\n\nTop fixes:\n" +
+      fixes.slice(0, 6).map(function (f, i) { return (i + 1) + ". " + f.title + " — " + f.text; }).join("\n");
+  }
 
   function buildChecklist() {
     var wrap = document.getElementById("checklist");
@@ -356,18 +651,32 @@
       protectionsInPlace: r.done, totalProtections: r.total,
       gaps: r.gaps.map(function (g) { return { item: g.label, fix: g.fix }; })
     };
-    var blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
-    var url = URL.createObjectURL(blob);
-    var link = document.createElement("a");
-    link.href = url;
-    link.download = "security-posture-" + Date.now() + ".json";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    downloadJsonReport(report, "security-posture");
   }
 
   buildChecklist();
+  document.getElementById("scanDomainBtn").addEventListener("click", scanDomain);
+  document.getElementById("domainInput").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") scanDomain();
+  });
+  document.getElementById("downloadDomainReportBtn").addEventListener("click", function () {
+    if (!domainScanState.report) {
+      document.getElementById("domainIssueList").innerHTML = '<div class="issue warn"><strong>No report yet</strong>Run a domain scan before downloading a DNS report.</div>';
+      return;
+    }
+    downloadJsonReport(domainScanState.report, "email-domain-security");
+  });
+  document.getElementById("copyDomainReportBtn").addEventListener("click", async function () {
+    var text = domainFixPlan(domainScanState.report);
+    try {
+      await navigator.clipboard.writeText(text);
+      this.textContent = "Copied";
+      var btn = this;
+      setTimeout(function () { btn.textContent = "Copy fix plan"; }, 1300);
+    } catch (err) {
+      document.getElementById("domainIssueList").innerHTML += '<div class="issue warn"><strong>Copy blocked</strong>Your browser blocked clipboard access. Download the DNS report instead.</div>';
+    }
+  });
   document.getElementById("checklist").addEventListener("change", render);
   document.getElementById("scoreBtn").addEventListener("click", render);
   document.getElementById("downloadBtn").addEventListener("click", downloadReport);
