@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anatomy of an Account Takeover — and the free tool to score your own security</title>
+  <meta name="description" content="A real account-takeover, the password-proof backdoor almost nobody checks, and the security lessons that came from the response. Plus a free 60-second tool to score your own account security and find the gap to close first.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Anatomy of an Account Takeover — and how I got everything back">
+  <meta property="og:description" content="A hidden OAuth backdoor, evidence-hiding filters, and the lessons from a real incident response. Plus a free tool to score your own account security.">
+  <meta property="og:url" content="https://lancimoun.github.io/agent-reliability-arena/security.html">
+  <meta property="og:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/security-field-report.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Anatomy of an Account Takeover">
+  <meta name="twitter:description" content="A sanitized security field report and a free browser-only checklist for account security gaps.">
+  <meta name="twitter:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/security-field-report.png">
+  <link rel="canonical" href="https://lancimoun.github.io/agent-reliability-arena/security.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #000; --bone: #fff; --ash: #d6d6dc; --smoke: #9a9aa4;
+      --plum: #8052ff; --spark: #ffb829; --lichen: #20d6a1; --rose: #ff5c8a;
+      --hairline: rgba(255,255,255,.16); --panel: rgba(0,0,0,.46);
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+      --sans: "Space Grotesk", Inter, Segoe UI, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; letter-spacing: 0; }
+    body {
+      margin: 0; background: var(--void); color: var(--bone);
+      font-family: var(--sans); overflow-x: hidden;
+    }
+    body:before {
+      content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255,92,138,.16), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(128,82,255,.14), transparent 30%),
+        radial-gradient(circle at 60% 100%, rgba(32,214,161,.10), transparent 36%),
+        linear-gradient(rgba(128,82,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128,82,255,.045) 1px, transparent 1px);
+      background-size: auto, auto, auto, 110px 110px, 110px 110px;
+      mask-image: linear-gradient(180deg, #000 0 60%, transparent 100%);
+    }
+    main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 20px 20px 70px; }
+    nav {
+      position: sticky; top: 0; z-index: 5; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px; padding: 16px 0; margin-bottom: 30px;
+      border-bottom: 1px solid var(--hairline); background: rgba(0,0,0,.74); backdrop-filter: blur(18px);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 700; }
+    .brand-sigil {
+      width: 32px; height: 32px; border: 1px solid rgba(128,82,255,.86); border-radius: 50%;
+      display: inline-grid; place-items: center; flex: 0 0 32px;
+    }
+    .brand-sigil::after { content: ""; width: 9px; height: 9px; background: var(--plum); border-radius: 50%; }
+    .navlinks { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    a { color: var(--bone); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--hairline);
+      border-radius: 999px; padding: 10px 15px; color: var(--bone); text-decoration: none;
+      font-size: 13px; font-weight: 600; background: transparent; cursor: pointer; font-family: var(--sans);
+      transition: border-color .2s ease, transform .2s ease, background .2s ease;
+    }
+    .btn:hover { border-color: rgba(255,255,255,.46); transform: translateY(-1px); }
+    .btn.primary { color: var(--bone); background: var(--plum); border: 1px solid var(--plum); }
+    .btn.green { color: #02160f; background: var(--lichen); border: 1px solid var(--lichen); }
+    .eyebrow { color: var(--rose); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .14em !important; }
+    h1 { margin: 12px 0 16px; font-size: clamp(38px, 7vw, 72px); line-height: .92; font-weight: 300; max-width: 860px; }
+    .lead { color: var(--ash); max-width: 680px; font-size: 18px; line-height: 1.6; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 26px 0 4px; }
+    .stat { border: 1px solid var(--hairline); border-radius: 16px; padding: 16px 18px; background: var(--panel); }
+    .stat b { display: block; font-size: clamp(26px, 4vw, 40px); font-weight: 300; line-height: 1; margin-bottom: 6px; }
+    .stat span { color: var(--smoke); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+    section { margin-top: 30px; }
+    .prose { max-width: 770px; }
+    .prose h2 { font-weight: 500; font-size: clamp(22px, 3.6vw, 32px); margin: 42px 0 14px; line-height: 1.1; }
+    .prose h3 { font-weight: 600; font-size: 17px; margin: 22px 0 6px; color: var(--bone); }
+    .prose p { color: var(--ash); line-height: 1.72; font-size: 16px; margin: 0 0 14px; }
+    .prose strong { color: var(--bone); }
+    .prose ul { color: var(--ash); line-height: 1.72; font-size: 16px; padding-left: 20px; margin: 0 0 14px; }
+    .prose li { margin-bottom: 8px; }
+    .lessons { display: grid; gap: 10px; margin-top: 10px; }
+    .lesson {
+      border: 1px solid var(--hairline); border-left: 4px solid var(--plum); border-radius: 12px;
+      padding: 14px 16px; background: rgba(0,0,0,.4);
+    }
+    .lesson b { color: var(--bone); display: block; margin-bottom: 4px; font-size: 15px; }
+    .lesson p { margin: 0; color: var(--ash); line-height: 1.6; font-size: 14.5px; }
+    .lesson.star { border-left-color: var(--spark); background: radial-gradient(circle at 0% 0%, rgba(255,184,41,.08), transparent 60%), rgba(0,0,0,.4); }
+    table.tl { width: 100%; border-collapse: collapse; margin-top: 8px; max-width: 770px; }
+    table.tl td { padding: 10px 12px; border-bottom: 1px solid var(--hairline); color: var(--ash); vertical-align: top; font-size: 14.5px; line-height: 1.5; }
+    table.tl td:first-child { color: var(--smoke); font-family: var(--mono); font-size: 12.5px; white-space: nowrap; width: 38%; }
+    .divider { border: 0; border-top: 1px solid var(--hairline); margin: 44px 0 0; }
+    /* tool */
+    .tool { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(320px,.95fr); gap: 14px; margin-top: 18px; }
+    .panel { border: 1px solid var(--hairline); border-radius: 22px; padding: 20px; background: var(--panel); }
+    .panel h2 { margin: 0 0 12px; font-size: 20px; font-weight: 500; }
+    .checklist { display: grid; gap: 8px; }
+    .check {
+      display: flex; gap: 11px; align-items: flex-start; border: 1px solid var(--hairline);
+      border-radius: 12px; padding: 11px 13px; background: rgba(0,0,0,.4); cursor: pointer;
+      transition: border-color .18s ease, background .18s ease;
+    }
+    .check:hover { border-color: rgba(255,255,255,.34); }
+    .check input { margin: 2px 0 0; width: 18px; height: 18px; flex: 0 0 18px; accent-color: var(--lichen); cursor: pointer; }
+    .check span { font-size: 14px; line-height: 1.45; color: var(--ash); }
+    .check input:checked ~ span { color: var(--bone); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+    .result { display: grid; gap: 12px; align-content: start; }
+    .score {
+      display: grid; place-items: center; min-height: 168px; border: 1px solid var(--hairline); border-radius: 18px;
+      background: radial-gradient(circle at 50% 42%, rgba(32,214,161,.18), transparent 46%), rgba(0,0,0,.5); text-align: center;
+    }
+    .score strong { display: block; font-size: clamp(54px, 11vw, 90px); line-height: .9; font-weight: 300; }
+    .score span { color: var(--smoke); text-transform: uppercase; letter-spacing: .12em !important; font-size: 12px; font-weight: 700; }
+    .issue-list { display: grid; gap: 8px; }
+    .issue {
+      border: 1px solid var(--hairline); border-left: 4px solid var(--smoke); border-radius: 10px;
+      padding: 10px 12px; background: rgba(0,0,0,.44); color: var(--ash); line-height: 1.45; font-size: 14px;
+    }
+    .issue.pass { border-left-color: var(--lichen); }
+    .issue.warn { border-left-color: var(--spark); }
+    .issue.fail { border-left-color: var(--rose); }
+    .issue strong { display: block; color: var(--bone); margin-bottom: 3px; }
+    .cta {
+      margin-top: 30px; border: 1px solid rgba(128,82,255,.4); border-radius: 22px; padding: 26px;
+      background: radial-gradient(circle at 18% 0%, rgba(128,82,255,.16), transparent 60%), var(--panel);
+    }
+    .cta h2 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 34px); font-weight: 300; }
+    .cta p { color: var(--ash); max-width: 660px; line-height: 1.6; margin: 0 0 16px; }
+    .cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    footer { color: var(--smoke); font-size: 12px; text-align: center; margin-top: 30px; border-top: 1px solid var(--hairline); padding-top: 22px; }
+    .muted { color: var(--smoke); }
+    @media (max-width: 880px) {
+      nav { position: relative; }
+      .tool { grid-template-columns: 1fr; }
+      .navlinks { justify-content: flex-start; }
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <nav>
+    <div class="brand"><span class="brand-sigil" aria-hidden="true"></span><span>Field Report</span></div>
+    <div class="navlinks">
+      <a class="btn" href="https://lancimoun.github.io/agent-reliability-arena/">Arena</a>
+      <a class="btn" href="checker.html">Reliability Checker</a>
+      <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena">GitHub</a>
+      <a class="btn primary" href="#tool">Score my security</a>
+    </div>
+  </nav>
+
+  <section>
+    <div class="eyebrow">Field report · a real incident, sanitized</div>
+    <h1>Anatomy of an Account Takeover</h1>
+    <p class="lead">A compromised email account was used to trigger unauthorized money-transfer activity and plant a <strong>password-proof backdoor</strong> almost nobody knows to check. I caught it quickly, ran a full incident response, and locked down the persistence path. Here's what I learned — and a free tool to score your own security.</p>
+    <div class="stats">
+      <div class="stat"><b>Private</b><span>financial amount intentionally redacted</span></div>
+      <div class="stat"><b>Same day</b><span>incident response and provider report</span></div>
+      <div class="stat"><b>1</b><span>hidden backdoor a password change won't kill</span></div>
+    </div>
+    <p class="muted" style="max-width:760px;margin-top:16px;line-height:1.55">Privacy boundary: this public report intentionally excludes exact amounts, recipient names, bank details, case numbers, account identifiers, and private evidence files.</p>
+  </section>
+
+  <section class="prose">
+    <h2>The attack</h2>
+    <p>It started where most breaches actually start: <strong>reused and leaked passwords.</strong> A password I'd used in more than one place had turned up in a data breach. That single leaked credential was the key.</p>
+    <p>Once the account was compromised, three things turned a login into a serious incident:</p>
+
+    <h3>1. They hid the evidence</h3>
+    <p>They planted a mail filter that automatically deleted every incoming message from my money-transfer provider. So while the fraud alerts were firing, they were silently trashed before I ever saw them.</p>
+
+    <h3>2. They planted a password-proof backdoor</h3>
+    <p>This is the part that matters most. They authorized a malicious <strong>OAuth application</strong> — a "connected app" — with permission to send mail as me and read my files. OAuth tokens and passkeys <strong>survive a password change.</strong> You can reset your password ten times and the backdoor still works, because it never used your password in the first place. This was their real foothold.</p>
+
+    <h3>3. Unauthorized transfers were attempted</h3>
+    <p>Multiple unauthorized transfers were sent to an unfamiliar recipient account. I'm intentionally omitting the amount, recipient, bank, and case details here for privacy and incident hygiene.</p>
+
+    <p>The recovery path had to be audited too. A recovery email can become the skeleton key to everything else, so it was treated as part of the same incident response instead of an afterthought.</p>
+
+    <h2>The incident response</h2>
+    <p>I discovered it the morning the transfers appeared. From there it was a race on two clocks: <strong>lock the attacker out</strong>, and <strong>report the transactions before funds moved further.</strong></p>
+    <ul>
+      <li><strong>Killed the active sessions</strong> — changed the password and force-signed-out every session, including the foreign ones I didn't recognize.</li>
+      <li><strong>Hunted the persistence</strong> — the step most people skip. Changing your password is <em>not</em> enough. I went into the account's connected apps / OAuth grants, found the malicious app, and revoked it. Then I checked passkeys and found a rogue one that could log in <em>without</em> a password — removed it. That explained the reset attempts that kept coming <em>after</em> I'd changed the password.</li>
+      <li><strong>Removed the evidence-hiding filter</strong> so alerts could reach me again.</li>
+      <li><strong>Secured the recovery email</strong> the same way — new password, two-factor on, deep-checked for filters, forwarding, and backdoors of its own.</li>
+      <li><strong>Reported the fraud fast</strong> — froze the card, filed the dispute, and reported the unauthorized activity through the right provider and fraud channels while the recovery window was still open.</li>
+      <li><strong>Hardened everything</strong> — strongest available account protection on my email, app-based two-factor everywhere, and a password manager with a unique password per account.</li>
+      <li><strong>Checked the devices</strong> — full malware scan and a forensic look at laptop and phone; both clean. This came through leaked credentials, not malware on my machine.</li>
+    </ul>
+
+    <h2>Timeline</h2>
+    <table class="tl">
+      <tr><td>Months before</td><td>A reused password leaks in a third-party breach</td></tr>
+      <tr><td>Days before</td><td>Suspicious foreign logins begin; a security alert fires</td></tr>
+      <tr><td>The night before</td><td>Unauthorized transfer activity appears</td></tr>
+      <tr><td>The morning of</td><td>I discover the fraud — incident response begins</td></tr>
+      <tr><td>Within hours</td><td>Sessions killed · backdoor revoked · fraud reported · accounts hardened</td></tr>
+      <tr><td>Same day</td><td>The provider resolves the reported security issue</td></tr>
+    </table>
+
+    <h2>The hard lessons</h2>
+    <div class="lessons">
+      <div class="lesson"><b>1. Reused passwords are the root cause, not bad luck.</b><p>One leaked password unlocks every account that shares it. A password manager with a unique password per site isn't optional — it's the single highest-leverage thing you can do.</p></div>
+      <div class="lesson star"><b>2. A password change does NOT remove a backdoor.</b><p>OAuth "connected apps" and passkeys log in <em>without</em> your password and survive a reset. After any compromise you must manually audit and revoke connected apps, passkeys, and sessions. Almost nobody checks this — it was the attacker's real foothold.</p></div>
+      <div class="lesson"><b>3. Two-factor is necessary, not sufficient.</b><p>It blocks a plain password login — but a stolen session cookie or an OAuth grant walks right past it. Layers matter.</p></div>
+      <div class="lesson"><b>4. Attackers hide the alarms.</b><p>A filter that quietly deletes alerts buys them days. If something feels off, check your filters and forwarding rules — not just your inbox.</p></div>
+      <div class="lesson"><b>5. The recovery window is a race.</b><p>Unauthorized transfers are more likely to be resolved <em>if you report within hours</em>. Know how to freeze your card and file a dispute <em>before</em> you need to.</p></div>
+      <div class="lesson"><b>6. Your recovery email is the real crown jewel.</b><p>It can reset everything else. If it has an old password and no two-factor, your "secure" main account is only as strong as that forgotten inbox.</p></div>
+    </div>
+
+    <h2>Outcome</h2>
+    <p>The attacker was locked out. The backdoors are gone. The financial exposure was resolved through the provider's security process. A later login attempt after the cleanup was blocked by two-factor — proof the hardening held. It was the worst day I've had with technology, and I came out of it knowing exactly how these attacks work from the inside.</p>
+  </section>
+
+  <hr class="divider">
+
+  <section id="tool">
+    <div class="eyebrow" style="color:var(--lichen)">Free tool · runs in your browser</div>
+    <h1 style="font-size:clamp(30px,5.5vw,52px)">Score your own account security</h1>
+    <p class="lead">Tick the protections you already have. You'll get a security score and the single most important gap to close first — built straight from what saved me. Nothing is saved or uploaded.</p>
+    <div class="tool">
+      <div class="panel">
+        <h2>Your protections</h2>
+        <div class="checklist" id="checklist"></div>
+        <div class="toolbar">
+          <button class="btn primary" id="scoreBtn" type="button">Score my security</button>
+          <button class="btn" id="resetBtn" type="button">Reset</button>
+          <button class="btn" id="downloadBtn" type="button">Download report</button>
+        </div>
+        <p class="muted" style="font-size:12px;margin-top:12px">100% local — your answers never leave your browser. A deterministic checklist, not a model grade.</p>
+      </div>
+      <div class="panel result">
+        <div class="score" id="scoreBox">
+          <div><strong id="scoreValue">--</strong><span id="scoreLabel">Tick what you've done</span></div>
+        </div>
+        <div>
+          <h2 style="font-size:16px;margin:4px 0 8px">Your gaps &amp; what to fix first</h2>
+          <div class="issue-list" id="issueList">
+            <div class="issue warn"><strong>No score yet</strong>Check the boxes for protections you already have, then hit Score my security.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="hire">
+    <div class="eyebrow">Build with someone who's been tested</div>
+    <h2>I build AI systems — security-first now, not by accident.</h2>
+    <p>I'm Lance, the engineer behind the Agent Reliability Arena. I build and harden AI chatbots, RAG apps, and agents — and after running a real incident response, security is part of how I build, not an afterthought. Same discipline either way: assume things fail, hunt the hidden failure mode, verify the fix.</p>
+    <div class="cta-actions">
+      <a class="btn green" href="https://www.upwork.com/freelancers/~01619d508090fd5195" target="_blank" rel="noopener">Hire me on Upwork</a>
+      <a class="btn" href="checker.html">Try the Reliability Checker</a>
+      <a class="btn" href="https://lancimoun.github.io/agent-reliability-arena/">See the Arena</a>
+    </div>
+  </section>
+
+  <footer>
+    Built by Lance Jilliard Galicia · FORGE. A real incident, fully sanitized — no names, exact amounts, account numbers, or case references appear here. Educational only; not legal, financial, or professional security advice. Deterministic, dependency-free, runs entirely in your browser.
+  </footer>
+</main>
+<script>
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char];
+    });
+  }
+
+  var CHECKS = [
+    { id: "unique",     w: 16, label: "Every account has its own unique password (no reuse)", fix: "Reused passwords are the #1 root cause — one leak unlocks the rest. Change duplicates so a single breach can't cascade." },
+    { id: "manager",    w: 12, label: "You use a password manager", fix: "A manager makes unique passwords effortless. Pick one and migrate your logins — then give the manager itself 2FA." },
+    { id: "twofa",      w: 16, label: "Two-factor is ON for your email and all financial accounts", fix: "Turn on 2FA for your email and every money account first — they're the highest-value targets." },
+    { id: "app2fa",     w: 10, label: "Your 2FA uses an authenticator app or passkey (not just SMS)", fix: "SMS codes can be SIM-swapped. Move to an authenticator app or passkey wherever it's offered." },
+    { id: "oauth",      w: 16, label: "You've reviewed connected apps / OAuth grants and removed anything unknown", fix: "This is the backdoor almost nobody checks — connected apps survive password changes. Audit and revoke unknown grants now." },
+    { id: "sessions",   w: 10, label: "You've reviewed active sessions/devices and signed out anything unfamiliar", fix: "Open your account's device & session list and sign out anything you don't recognize." },
+    { id: "protection", w:  8, label: "Your primary email is on the strongest protection tier available", fix: "Your email can reset everything else. Enroll it in the highest protection tier your provider offers." },
+    { id: "backup",     w:  6, label: "Your backup / recovery codes are saved offline", fix: "Save backup codes somewhere offline so you're never locked out — and a thief can't grab them from your account." },
+    { id: "recovery",   w:  6, label: "Your recovery email/phone are current, verified, and secured", fix: "Your recovery email is a skeleton key. Make sure it's yours, has a unique password, and has 2FA on." }
+  ];
+
+  function buildChecklist() {
+    var wrap = document.getElementById("checklist");
+    wrap.innerHTML = "";
+    CHECKS.forEach(function (c) {
+      var label = document.createElement("label");
+      label.className = "check";
+      label.innerHTML = '<input type="checkbox" value="' + c.id + '"><span>' + escapeHtml(c.label) + '</span>';
+      wrap.appendChild(label);
+    });
+  }
+
+  function checkedIds() {
+    return [].slice.call(document.querySelectorAll('#checklist input:checked')).map(function (el) { return el.value; });
+  }
+
+  function scoreSecurity(ids) {
+    var got = 0, gaps = [];
+    CHECKS.forEach(function (c) {
+      if (ids.indexOf(c.id) >= 0) { got += c.w; } else { gaps.push(c); }
+    });
+    gaps.sort(function (a, b) { return b.w - a.w; });
+    var score = Math.max(0, Math.min(100, got));
+    var verdict = score >= 90 ? "Hardened" : score >= 70 ? "Solid" : score >= 50 ? "Exposed" : "High Risk";
+    return { score: score, verdict: verdict, gaps: gaps, done: CHECKS.length - gaps.length, total: CHECKS.length };
+  }
+
+  function severityFor(w) { return w >= 14 ? "fail" : "warn"; }
+
+  var state = { report: null };
+
+  function render() {
+    var r = scoreSecurity(checkedIds());
+    state.report = r;
+    document.getElementById("scoreValue").textContent = r.score;
+    document.getElementById("scoreLabel").textContent = r.verdict;
+    var list = document.getElementById("issueList");
+    list.innerHTML = "";
+
+    if (!r.gaps.length) {
+      var pass = document.createElement("div");
+      pass.className = "issue pass";
+      pass.innerHTML = "<strong>All " + r.total + " protections in place</strong>You're hardened. Re-check after any breach news or a new device — and make sure your password manager itself has 2FA.";
+      list.appendChild(pass);
+      return;
+    }
+
+    var summary = document.createElement("div");
+    summary.className = "issue " + (r.score >= 70 ? "warn" : "fail");
+    summary.innerHTML = "<strong>" + r.done + " of " + r.total + " protections in place</strong>Close the gaps below — hardest-hitting first.";
+    list.appendChild(summary);
+
+    r.gaps.forEach(function (c) {
+      var node = document.createElement("div");
+      node.className = "issue " + severityFor(c.w);
+      node.innerHTML = "<strong>" + escapeHtml(c.label) + "</strong>" + escapeHtml(c.fix);
+      list.appendChild(node);
+    });
+
+    var rec = document.createElement("div");
+    rec.className = "issue warn";
+    rec.innerHTML = "<strong>Fix this first</strong>" + escapeHtml(r.gaps[0].fix);
+    list.appendChild(rec);
+  }
+
+  function downloadReport() {
+    var r = state.report || scoreSecurity(checkedIds());
+    var report = {
+      tool: "Account Security Posture Checklist (Agent Reliability Arena)",
+      generatedAt: new Date().toISOString(),
+      score: r.score, verdict: r.verdict,
+      protectionsInPlace: r.done, totalProtections: r.total,
+      gaps: r.gaps.map(function (g) { return { item: g.label, fix: g.fix }; })
+    };
+    var blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "security-posture-" + Date.now() + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  buildChecklist();
+  document.getElementById("checklist").addEventListener("change", render);
+  document.getElementById("scoreBtn").addEventListener("click", render);
+  document.getElementById("downloadBtn").addEventListener("click", downloadReport);
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    [].slice.call(document.querySelectorAll('#checklist input')).forEach(function (el) { el.checked = false; });
+    document.getElementById("scoreValue").textContent = "--";
+    document.getElementById("scoreLabel").textContent = "Tick what you've done";
+    document.getElementById("issueList").innerHTML = '<div class="issue warn"><strong>No score yet</strong>Check the boxes for protections you already have, then hit Score my security.</div>';
+    state.report = null;
+  });
+</script>
+</body>
+</html>

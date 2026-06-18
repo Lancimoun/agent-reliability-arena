@@ -2,7 +2,7 @@
 
 Agent Reliability Arena is a small, dependency-light evaluation harness for AI agents.
 
-[Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Leaderboard roadmap](ROADMAP.md) | [Case study](docs/case_study.md) | [Launch case study](docs/launch_case_study.md)
+[Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Security field report](https://lancimoun.github.io/agent-reliability-arena/security.html) | [Leaderboard roadmap](ROADMAP.md) | [Case study](docs/case_study.md) | [Launch copy](docs/security_launch_copy.md)
 
 ![Agent Reliability Arena dashboard](docs/assets/dashboard.png)
 
@@ -17,6 +17,25 @@ It tests the practical failures that make agent products feel unreliable:
 - current-truth override failures
 
 This project was inspired by Project Maxima's Eval Lab, but it is designed as a public, reusable portfolio project.
+
+## Security Field Report
+
+The Arena now includes a sanitized public field report:
+
+[Anatomy of an Account Takeover](https://lancimoun.github.io/agent-reliability-arena/security.html)
+
+It turns a real account-security incident into an educational checklist for hidden persistence risks:
+
+- reused password exposure
+- evidence-hiding filters
+- OAuth connected-app backdoors
+- passkey and active-session review
+- recovery email weakness
+- backup-code hygiene
+
+The public report intentionally excludes exact financial amounts, recipient names, bank details, case numbers, account identifiers, and private evidence files. It is designed as a trust-building artifact: the same reliability mindset used for AI agents also applies to security response, recovery paths, and hidden failure modes.
+
+![Security field report social preview](docs/assets/security-field-report.png)
 
 ## Why It Exists
 
