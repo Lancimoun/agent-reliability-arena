@@ -4,17 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Anatomy of an Account Takeover — and the free tool to score your own security</title>
-  <meta name="description" content="A sanitized account-takeover field report with a defensive email-domain scanner for SPF, DMARC, DKIM, MX, MTA-STS, and TLS-RPT, plus a free account-security checklist.">
+  <meta name="description" content="A sanitized account-takeover field report with defensive email-domain and cross-device incident-readiness scanners for PC, mobile, Gmail, financial, and developer-account risks.">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Anatomy of an Account Takeover — and how I got everything back">
-  <meta property="og:description" content="A sanitized field report plus a defensive scanner for SPF, DMARC, DKIM, MX, MTA-STS, TLS-RPT, and account-security gaps.">
+  <meta property="og:description" content="A sanitized field report plus defensive scanners for email-domain posture, PC/mobile incident readiness, and account-security gaps.">
   <meta property="og:url" content="https://lancimoun.github.io/agent-reliability-arena/security.html">
   <meta property="og:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/security-field-report.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Anatomy of an Account Takeover">
-  <meta name="twitter:description" content="A sanitized security field report with a defensive email-domain scanner and browser-only account checklist.">
+  <meta name="twitter:description" content="A sanitized security field report with defensive email-domain and PC/mobile incident-readiness scanners.">
   <meta name="twitter:image" content="https://lancimoun.github.io/agent-reliability-arena/assets/security-field-report.png">
   <link rel="canonical" href="https://lancimoun.github.io/agent-reliability-arena/security.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,6 +137,32 @@
       background: rgba(0,0,0,.34); color: var(--ash); line-height: 1.5; font-size: 14px;
     }
     .future-item strong { color: var(--bone); display: block; margin-bottom: 3px; }
+    .deep-wrap { display: grid; grid-template-columns: minmax(0,1fr) minmax(300px,.42fr); gap: 14px; margin-top: 18px; }
+    .deep-groups { display: grid; gap: 12px; }
+    .deep-group {
+      border: 1px solid var(--hairline); border-radius: 18px; padding: 16px;
+      background: rgba(0,0,0,.38);
+    }
+    .deep-group-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+    .deep-group h3 { margin: 0; font-size: 18px; font-weight: 500; }
+    .deep-group p { margin: 5px 0 0; color: var(--smoke); line-height: 1.5; font-size: 13px; }
+    .deep-pill {
+      border: 1px solid var(--hairline); border-radius: 999px; padding: 5px 9px;
+      color: var(--lichen); font-family: var(--mono); font-size: 11px; white-space: nowrap;
+    }
+    .deep-checks { display: grid; gap: 8px; }
+    .deep-check {
+      display: grid; grid-template-columns: 20px minmax(0,1fr); gap: 10px; align-items: start;
+      border: 1px solid var(--hairline); border-radius: 12px; padding: 10px 12px;
+      background: rgba(0,0,0,.36); cursor: pointer;
+    }
+    .deep-check input { margin: 2px 0 0; width: 18px; height: 18px; accent-color: var(--lichen); cursor: pointer; }
+    .deep-check span { color: var(--ash); line-height: 1.45; font-size: 14px; }
+    .deep-check small { display: block; color: var(--smoke); font-size: 12px; margin-top: 3px; line-height: 1.45; }
+    .deep-check input:checked ~ span { color: var(--bone); }
+    .sticky-panel { position: sticky; top: 84px; }
+    .quick-links { display: grid; gap: 8px; margin-top: 12px; }
+    .quick-links a { justify-content: center; }
     .result { display: grid; gap: 12px; align-content: start; }
     .score {
       display: grid; place-items: center; min-height: 168px; border: 1px solid var(--hairline); border-radius: 18px;
@@ -164,10 +190,11 @@
     .muted { color: var(--smoke); }
     @media (max-width: 880px) {
       nav { position: relative; }
-      .tool, .scanner-grid { grid-template-columns: 1fr; }
+      .tool, .scanner-grid, .deep-wrap { grid-template-columns: 1fr; }
       .navlinks { justify-content: flex-start; }
       .stats { grid-template-columns: 1fr; }
       .mini-grid { grid-template-columns: 1fr; }
+      .sticky-panel { position: static; }
     }
   </style>
 </head>
@@ -180,6 +207,7 @@
       <a class="btn" href="checker.html">Reliability Checker</a>
       <a class="btn" href="https://github.com/Lancimoun/agent-reliability-arena">GitHub</a>
       <a class="btn" href="#scanner">Domain scanner</a>
+      <a class="btn" href="#deep-scan">Deep scan</a>
       <a class="btn primary" href="#tool">Score my security</a>
     </div>
   </nav>
@@ -301,6 +329,35 @@
     </div>
   </section>
 
+  <section id="deep-scan">
+    <div class="eyebrow" style="color:var(--rose)">Deep mode · PC + mobile</div>
+    <h1 style="font-size:clamp(30px,5.5vw,52px)">Incident readiness scan</h1>
+    <p class="lead">A guided, cross-device audit for the things attackers actually abuse after a compromise: account persistence, hidden email rules, browser access, mobile permissions, financial recovery, and developer secrets. It runs locally in your browser and works on desktop or phone.</p>
+    <div class="deep-wrap">
+      <div class="deep-groups" id="deepGroups"></div>
+      <div class="panel sticky-panel">
+        <h2>Deep scan report</h2>
+        <div class="score" style="min-height:138px" id="deepScoreBox">
+          <div><strong id="deepScoreValue">--</strong><span id="deepScoreLabel">Awaiting audit</span></div>
+        </div>
+        <div class="issue-list" id="deepIssueList" style="margin-top:12px">
+          <div class="issue warn"><strong>No deep scan yet</strong>Tick the protections you have verified across PC, mobile, accounts, and money paths.</div>
+        </div>
+        <div class="toolbar">
+          <button class="btn primary" id="runDeepScanBtn" type="button">Score deep scan</button>
+          <button class="btn" id="downloadDeepReportBtn" type="button">Download report</button>
+          <button class="btn" id="copyDeepPlanBtn" type="button">Copy action plan</button>
+        </div>
+        <div class="quick-links">
+          <a class="btn" href="https://myaccount.google.com/security-checkup" target="_blank" rel="noopener">Google Security Checkup</a>
+          <a class="btn" href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google third-party access</a>
+          <a class="btn" href="https://myaccount.google.com/signinoptions/passkeys" target="_blank" rel="noopener">Google passkeys</a>
+        </div>
+        <p class="source-note">This is defensive self-assessment, not a penetration test. It does not access your device, read messages, or store answers.</p>
+      </div>
+    </div>
+  </section>
+
   <section id="tool">
     <div class="eyebrow" style="color:var(--lichen)">Free tool · runs in your browser</div>
     <h1 style="font-size:clamp(30px,5.5vw,52px)">Score your own account security</h1>
@@ -363,6 +420,86 @@
     { id: "backup",     w:  6, label: "Your backup / recovery codes are saved offline", fix: "Save backup codes somewhere offline so you're never locked out — and a thief can't grab them from your account." },
     { id: "recovery",   w:  6, label: "Your recovery email/phone are current, verified, and secured", fix: "Your recovery email is a skeleton key. Make sure it's yours, has a unique password, and has 2FA on." }
   ];
+
+  var DEEP_GROUPS = [
+    {
+      id: "google",
+      title: "Google / Gmail persistence",
+      device: "account",
+      note: "The hidden paths that survive password changes.",
+      checks: [
+        { id: "filters", w: 12, label: "Gmail filters and forwarding rules reviewed", hint: "Look for auto-delete, mark-read, archive, or forwarding rules that hide alerts.", fix: "Open Gmail settings -> Filters and Blocked Addresses, then delete unknown filters and forwarding rules." },
+        { id: "oauth", w: 14, label: "Third-party apps / OAuth grants reviewed", hint: "Remove unknown apps, especially those with Gmail, Drive, or account scopes.", fix: "Review Google third-party access and remove every app you do not recognize or no longer need." },
+        { id: "passkeys", w: 12, label: "Passkeys and security keys reviewed", hint: "A rogue passkey can sign in without your password.", fix: "Review passkeys/security keys and remove anything you did not create." },
+        { id: "sessions", w: 10, label: "Active sessions and devices reviewed", hint: "Sign out unfamiliar devices, locations, and old sessions.", fix: "Use Google Security Checkup to sign out unfamiliar devices and sessions." },
+        { id: "recovery", w: 8, label: "Recovery email and phone verified", hint: "Your recovery path can reset everything else.", fix: "Verify recovery email/phone, secure the recovery email, and remove unknown recovery methods." },
+        { id: "advanced", w: 6, label: "Advanced Protection considered for high-risk account", hint: "Useful if the account controls money, code, cloud, or public identity.", fix: "If this is a high-value account, consider Google Advanced Protection." }
+      ]
+    },
+    {
+      id: "pc",
+      title: "PC / browser hygiene",
+      device: "desktop",
+      note: "Windows and browser attack surface after a suspicious login.",
+      checks: [
+        { id: "defender", w: 9, label: "Real-time protection enabled and full scan run", hint: "Your device should not stay in a weakened state after response.", fix: "Re-enable real-time protection and run a full antivirus scan." },
+        { id: "remote", w: 8, label: "Remote access tools reviewed or disabled", hint: "Chrome Remote Desktop, AnyDesk, TeamViewer, RustDesk, and similar tools need review.", fix: "Disable remote access tools you do not actively need." },
+        { id: "extensions", w: 9, label: "Browser extensions audited", hint: "Extensions with all-site/cookie permissions can become account-risk multipliers.", fix: "Remove unknown or over-permissioned extensions; keep only trusted essentials." },
+        { id: "startup", w: 7, label: "Startup apps and scheduled tasks checked", hint: "Persistence can hide in startup entries and scheduled tasks.", fix: "Review startup apps and scheduled tasks for unknown entries." },
+        { id: "downloads", w: 6, label: "Sensitive files removed from Downloads/Desktop", hint: "Recovery codes, API keys, and credentials should not sit in common folders.", fix: "Move recovery codes offline; rotate any exposed credentials." }
+      ]
+    },
+    {
+      id: "mobile",
+      title: "Mobile / SIM path",
+      device: "phone",
+      note: "Phone compromise and recovery-channel safety.",
+      checks: [
+        { id: "accessibility", w: 10, label: "Accessibility services reviewed", hint: "Malicious apps can abuse Accessibility to read screens or automate taps.", fix: "Disable Accessibility access for apps that do not absolutely need it." },
+        { id: "deviceAdmin", w: 9, label: "Device admin / management apps reviewed", hint: "Device-admin apps can resist removal or control security settings.", fix: "Remove unknown device-admin or MDM-style apps." },
+        { id: "apps", w: 8, label: "Recent installs and unknown APKs reviewed", hint: "Side-loaded or recently installed apps deserve extra suspicion.", fix: "Uninstall unknown apps and avoid side-loaded APKs unless fully trusted." },
+        { id: "updates", w: 6, label: "Phone OS and browser updated", hint: "Old OS/browser versions keep known vulnerabilities alive.", fix: "Install OS, browser, and security updates." },
+        { id: "sim", w: 8, label: "Carrier/SIM-swap protection checked", hint: "If SMS is a recovery route, the phone number is part of the account perimeter.", fix: "Ask your carrier about SIM-swap protection or account PINs." }
+      ]
+    },
+    {
+      id: "money",
+      title: "Financial recovery",
+      device: "money",
+      note: "Stop money movement and preserve recovery windows.",
+      checks: [
+        { id: "freeze", w: 12, label: "Cards frozen/replaced and sessions revoked", hint: "Stop additional transactions before investigation finishes.", fix: "Freeze cards, rotate financial-account password, and sign out all sessions." },
+        { id: "dispute", w: 10, label: "Fraud dispute filed quickly", hint: "Recovery chances are higher when reported fast.", fix: "File provider/bank disputes immediately and preserve reference numbers privately." },
+        { id: "alerts", w: 7, label: "Transaction alerts restored and tested", hint: "Attackers often hide alerts with filters or notification suppression.", fix: "Enable email/app/SMS alerts and confirm they reach you." },
+        { id: "crypto", w: 9, label: "Crypto/brokerage withdrawal paths reviewed", hint: "High-risk accounts need withdrawal whitelists and history review.", fix: "Review withdrawal history, whitelist addresses, and lock withdrawals where possible." }
+      ]
+    },
+    {
+      id: "developer",
+      title: "Developer accounts / cloud",
+      device: "code",
+      note: "API keys and recovery codes can turn an account breach into infrastructure risk.",
+      checks: [
+        { id: "github", w: 10, label: "GitHub tokens, SSH keys, and recovery codes reviewed", hint: "Rotate recovery codes if they were exposed locally or in cloud storage.", fix: "Review GitHub sessions, tokens, SSH keys, deploy keys, and rotate recovery codes." },
+        { id: "apiKeys", w: 10, label: "API keys and cloud env vars rotated where exposed", hint: "Any token visible to a compromised account should be treated as potentially exposed.", fix: "Rotate AI provider keys, database URLs, deployment secrets, and webhook tokens." },
+        { id: "railway", w: 8, label: "Railway/cloud projects reviewed", hint: "Check deployments, env vars, webhooks, and team access.", fix: "Review cloud project access, environment variables, deployment logs, and connected repos." },
+        { id: "passwordManager", w: 8, label: "Password manager vault secured", hint: "The vault becomes the new root of trust.", fix: "Use a unique master password, 2FA, and emergency/recovery settings you understand." }
+      ]
+    },
+    {
+      id: "evidence",
+      title: "Evidence / aftercare",
+      device: "ops",
+      note: "A calm response needs a timeline, evidence, and monitoring.",
+      checks: [
+        { id: "timeline", w: 7, label: "Incident timeline documented", hint: "Write what happened, when, what changed, and what was reported.", fix: "Maintain a private incident timeline with dates, screenshots, and support references." },
+        { id: "screenshots", w: 6, label: "Screenshots preserved privately", hint: "Do not publish them. Keep evidence local or in secure storage.", fix: "Save evidence privately; never post account numbers, case numbers, or IDs." },
+        { id: "monitoring", w: 7, label: "Follow-up monitoring scheduled", hint: "Attackers often retry after the first cleanup.", fix: "Check sessions, financial accounts, and alerts daily for a week, then weekly for a month." },
+        { id: "lessons", w: 5, label: "Durable fix list completed", hint: "The final response is process improvement, not panic.", fix: "Turn the incident into a reusable security checklist and keep it updated." }
+      ]
+    }
+  ];
+  var deepState = { report: null };
 
   var DNS_RESOLVERS = [
     function (name, type) { return "https://cloudflare-dns.com/dns-query?name=" + encodeURIComponent(name) + "&type=" + encodeURIComponent(type); },
@@ -578,6 +715,103 @@
       fixes.slice(0, 6).map(function (f, i) { return (i + 1) + ". " + f.title + " — " + f.text; }).join("\n");
   }
 
+  function buildDeepGroups() {
+    var wrap = document.getElementById("deepGroups");
+    wrap.innerHTML = "";
+    DEEP_GROUPS.forEach(function (group) {
+      var node = document.createElement("div");
+      node.className = "deep-group";
+      var checks = group.checks.map(function (c) {
+        return '<label class="deep-check"><input type="checkbox" value="' + escapeHtml(group.id + ":" + c.id) + '"><span>' + escapeHtml(c.label) + '<small>' + escapeHtml(c.hint) + '</small></span></label>';
+      }).join("");
+      node.innerHTML =
+        '<div class="deep-group-head"><div><h3>' + escapeHtml(group.title) + '</h3><p>' + escapeHtml(group.note) + '</p></div><span class="deep-pill">' + escapeHtml(group.device) + '</span></div>' +
+        '<div class="deep-checks">' + checks + '</div>';
+      wrap.appendChild(node);
+    });
+  }
+
+  function checkedDeepIds() {
+    return [].slice.call(document.querySelectorAll('#deepGroups input:checked')).map(function (el) { return el.value; });
+  }
+
+  function scoreDeepScan(ids) {
+    var idSet = {};
+    ids.forEach(function (id) { idSet[id] = true; });
+    var total = 0, got = 0, gaps = [], groups = [];
+    DEEP_GROUPS.forEach(function (group) {
+      var groupTotal = 0, groupGot = 0, missing = [];
+      group.checks.forEach(function (c) {
+        var key = group.id + ":" + c.id;
+        total += c.w;
+        groupTotal += c.w;
+        if (idSet[key]) {
+          got += c.w;
+          groupGot += c.w;
+        } else {
+          var gap = Object.assign({ group: group.title, groupId: group.id, key: key }, c);
+          gaps.push(gap);
+          missing.push(gap);
+        }
+      });
+      groups.push({ id: group.id, title: group.title, device: group.device, score: Math.round((groupGot / groupTotal) * 100), missing: missing.length, total: group.checks.length });
+    });
+    gaps.sort(function (a, b) { return b.w - a.w; });
+    var score = Math.round((got / total) * 100);
+    var verdict = score >= 90 ? "Hardened" : score >= 72 ? "Stable" : score >= 50 ? "Exposed" : "Critical";
+    return { tool: "FORGE Cross-Device Incident Readiness Scan", generatedAt: new Date().toISOString(), score: score, verdict: verdict, groups: groups, gaps: gaps, checked: ids.length, totalChecks: DEEP_GROUPS.reduce(function (sum, g) { return sum + g.checks.length; }, 0) };
+  }
+
+  function renderDeepScan() {
+    var report = scoreDeepScan(checkedDeepIds());
+    deepState.report = report;
+    document.getElementById("deepScoreValue").textContent = report.score;
+    document.getElementById("deepScoreLabel").textContent = report.verdict;
+    var list = document.getElementById("deepIssueList");
+    list.innerHTML = "";
+    var summary = document.createElement("div");
+    summary.className = "issue " + (report.score >= 72 ? "warn" : "fail");
+    summary.innerHTML = "<strong>" + report.checked + " of " + report.totalChecks + " checks verified</strong>" + escapeHtml("Cross-device verdict: " + report.verdict + ". Fix the highest-risk gaps first.");
+    list.appendChild(summary);
+
+    report.groups.forEach(function (group) {
+      var node = document.createElement("div");
+      node.className = "issue " + (group.score >= 75 ? "pass" : group.score >= 45 ? "warn" : "fail");
+      node.innerHTML = "<strong>" + escapeHtml(group.title + " · " + group.score + "/100") + "</strong>" + escapeHtml(group.missing ? group.missing + " remaining check(s) in this layer." : "This layer is verified.");
+      list.appendChild(node);
+    });
+
+    if (report.gaps.length) {
+      var top = document.createElement("div");
+      top.className = "issue fail";
+      top.innerHTML = "<strong>Fix first</strong>" + escapeHtml(report.gaps[0].group + ": " + report.gaps[0].fix);
+      list.appendChild(top);
+    } else {
+      var done = document.createElement("div");
+      done.className = "issue pass";
+      done.innerHTML = "<strong>All deep checks verified</strong>Keep monitoring sessions, alerts, and financial accounts after any suspicious activity.";
+      list.appendChild(done);
+    }
+  }
+
+  function deepActionPlan(report) {
+    if (!report) return "Run the deep scan first.";
+    var lines = [
+      "FORGE Cross-Device Incident Readiness Scan",
+      "Score: " + report.score + "/100 (" + report.verdict + ")",
+      "",
+      "Top fixes:"
+    ];
+    if (!report.gaps.length) {
+      lines.push("1. All checks verified. Keep monitoring account sessions, alerts, and financial activity.");
+    } else {
+      report.gaps.slice(0, 10).forEach(function (gap, index) {
+        lines.push((index + 1) + ". " + gap.group + " — " + gap.fix);
+      });
+    }
+    return lines.join("\n");
+  }
+
   function buildChecklist() {
     var wrap = document.getElementById("checklist");
     wrap.innerHTML = "";
@@ -655,6 +889,7 @@
   }
 
   buildChecklist();
+  buildDeepGroups();
   document.getElementById("scanDomainBtn").addEventListener("click", scanDomain);
   document.getElementById("domainInput").addEventListener("keydown", function (event) {
     if (event.key === "Enter") scanDomain();
@@ -675,6 +910,23 @@
       setTimeout(function () { btn.textContent = "Copy fix plan"; }, 1300);
     } catch (err) {
       document.getElementById("domainIssueList").innerHTML += '<div class="issue warn"><strong>Copy blocked</strong>Your browser blocked clipboard access. Download the DNS report instead.</div>';
+    }
+  });
+  document.getElementById("deepGroups").addEventListener("change", renderDeepScan);
+  document.getElementById("runDeepScanBtn").addEventListener("click", renderDeepScan);
+  document.getElementById("downloadDeepReportBtn").addEventListener("click", function () {
+    var report = deepState.report || scoreDeepScan(checkedDeepIds());
+    downloadJsonReport(report, "cross-device-incident-readiness");
+  });
+  document.getElementById("copyDeepPlanBtn").addEventListener("click", async function () {
+    var text = deepActionPlan(deepState.report || scoreDeepScan(checkedDeepIds()));
+    try {
+      await navigator.clipboard.writeText(text);
+      this.textContent = "Copied";
+      var btn = this;
+      setTimeout(function () { btn.textContent = "Copy action plan"; }, 1300);
+    } catch (err) {
+      document.getElementById("deepIssueList").innerHTML += '<div class="issue warn"><strong>Copy blocked</strong>Your browser blocked clipboard access. Download the deep scan report instead.</div>';
     }
   });
   document.getElementById("checklist").addEventListener("change", render);

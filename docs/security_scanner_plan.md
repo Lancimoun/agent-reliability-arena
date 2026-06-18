@@ -28,7 +28,21 @@ Limitations:
 
 ## Phase 2 - Gmail Settings Scanner
 
-Status: planned.
+Status: partially shipped as a guided cross-device deep scan; OAuth automation is planned.
+
+Current shipped layer:
+
+- Google/Gmail persistence checklist
+- PC/browser hygiene checklist
+- mobile/SIM path checklist
+- financial recovery checklist
+- developer/cloud secrets checklist
+- evidence and aftercare checklist
+- downloadable cross-device incident-readiness report
+
+This layer works on desktop and mobile browsers without account access.
+
+Future OAuth layer:
 
 Use explicit Google OAuth and least-privilege scopes to inspect Gmail settings that public DNS cannot see:
 
@@ -108,4 +122,3 @@ This belongs inside Agent Reliability Arena because security and AI reliability 
 3. Score the risk.
 4. Prioritize the fix.
 5. Verify that the fix holds.
-

@@ -48,6 +48,19 @@ The field report now includes a defensive no-auth scanner for email/domain postu
 
 This first scanner layer does not collect passwords, read inboxes, bypass login systems, or store private account data. It only queries public DNS records. See [Security Scanner Plan](docs/security_scanner_plan.md) for the roadmap toward Gmail settings checks, Google Security Checkup guidance, breach exposure checks, and report generation.
 
+## Cross-Device Incident Readiness Scanner
+
+The same page now includes a deeper guided scanner for PC and mobile incident response:
+
+- Google/Gmail persistence: filters, forwarding, OAuth grants, passkeys, sessions, recovery paths
+- PC/browser hygiene: real-time protection, remote access tools, extensions, startup entries, exposed files
+- Mobile/SIM path: Accessibility services, device-admin apps, sideloaded apps, OS updates, SIM-swap protection
+- Financial recovery: freezes, disputes, alerts, crypto/brokerage withdrawal paths
+- Developer accounts/cloud: GitHub tokens, API keys, Railway/cloud secrets, password manager root-of-trust
+- Evidence and aftercare: timeline, screenshots, monitoring, durable fix list
+
+It is a local guided audit, not an invasive scanner. It works from desktop or mobile browsers and generates a downloadable cross-device readiness report.
+
 ## Why It Exists
 
 Most demos show agents working once. Real systems need proof that they keep working over time.
