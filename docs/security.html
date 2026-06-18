@@ -302,7 +302,7 @@
       </div>
       <div class="panel result">
         <h2>Scanner findings</h2>
-        <div class="issue-list" id="domainIssueList">
+        <div class="issue-list" id="domainIssueList" aria-live="polite">
           <div class="issue warn"><strong>No domain scan yet</strong>Enter a domain you own, then run the scanner. Public DNS results can reveal missing mail-authentication controls before attackers abuse them.</div>
         </div>
         <h2 style="font-size:16px;margin:8px 0 0">Observed DNS records</h2>
@@ -340,7 +340,7 @@
         <div class="score" style="min-height:138px" id="deepScoreBox">
           <div><strong id="deepScoreValue">--</strong><span id="deepScoreLabel">Awaiting audit</span></div>
         </div>
-        <div class="issue-list" id="deepIssueList" style="margin-top:12px">
+        <div class="issue-list" id="deepIssueList" style="margin-top:12px" aria-live="polite">
           <div class="issue warn"><strong>No deep scan yet</strong>Tick the protections you have verified across PC, mobile, accounts, and money paths.</div>
         </div>
         <div class="toolbar">
@@ -379,7 +379,7 @@
         </div>
         <div>
           <h2 style="font-size:16px;margin:4px 0 8px">Your gaps &amp; what to fix first</h2>
-          <div class="issue-list" id="issueList">
+          <div class="issue-list" id="issueList" aria-live="polite">
             <div class="issue warn"><strong>No score yet</strong>Check the boxes for protections you already have, then hit Score my security.</div>
           </div>
         </div>
@@ -650,18 +650,27 @@
 
     var score = findings.reduce(function (sum, f) { return sum + f.points; }, 0);
     var verdict = score >= 90 ? "Hardened" : score >= 70 ? "Solid" : score >= 45 ? "Needs Work" : "Exposed";
-    return { tool: "FORGE Email Domain Security Scanner", generatedAt: new Date().toISOString(), domain: domain, score: Math.max(0, Math.min(100, score)), verdict: verdict, findings: findings, records: records };
+    return { tool: "FORGE Email Domain Security Scanner", generatedAt: new Date().toISOString(), domain: domain, score: Math.max(0, Math.min(100, score)), verdict: verdict, consumerProvider: options.consumerProvider || "", findings: findings, records: records };
   }
 
   function renderDomainReport(report) {
     domainScanState.report = report;
-    document.getElementById("domainScore").textContent = report.score;
-    document.getElementById("domainVerdict").textContent = report.verdict;
     var list = document.getElementById("domainIssueList");
     list.innerHTML = "";
     var summary = document.createElement("div");
-    summary.className = "issue " + (report.score >= 70 ? "warn" : "fail");
-    summary.innerHTML = "<strong>" + escapeHtml(report.domain) + " · " + report.score + "/100</strong>" + escapeHtml("Verdict: " + report.verdict + ". Prioritize fail/warn items before launch.");
+    if (report.consumerProvider) {
+      // Honesty: a personal mailbox (gmail/outlook/etc.) scans the PROVIDER's shared DNS,
+      // which is always near-perfect and says nothing about THIS user's account safety.
+      document.getElementById("domainScore").textContent = "—";
+      document.getElementById("domainVerdict").textContent = "Provider DNS, not your account";
+      summary.className = "issue warn";
+      summary.innerHTML = "<strong>" + escapeHtml(report.domain) + " is " + escapeHtml(report.consumerProvider) + "</strong>" + escapeHtml("This checks the provider's shared mail DNS — it is always strong and does NOT measure your personal account. Your safety depends on the deep scan below (passwords, 2FA, OAuth grants, sessions), not this score.");
+    } else {
+      document.getElementById("domainScore").textContent = report.score;
+      document.getElementById("domainVerdict").textContent = report.verdict;
+      summary.className = "issue " + (report.score >= 70 ? "warn" : "fail");
+      summary.innerHTML = "<strong>" + escapeHtml(report.domain) + " · " + report.score + "/100</strong>" + escapeHtml("Verdict: " + report.verdict + ". Prioritize fail/warn items before launch.");
+    }
     list.appendChild(summary);
     report.findings.forEach(function (f) {
       var node = document.createElement("div");
@@ -680,10 +689,10 @@
       records.appendChild(node);
     });
 
-    var fixes = report.findings.filter(function (f) { return f.kind !== "pass"; }).slice(0, 5).map(function (f) { return "- " + f.title + ": " + f.text; }).join("%0D%0A");
+    var fixes = report.findings.filter(function (f) { return f.kind !== "pass"; }).slice(0, 5).map(function (f) { return "- " + f.title + ": " + f.text; }).join("\n");
     document.getElementById("emailDomainReportBtn").href =
       "mailto:lancejilliard.galicia@gmail.com?subject=" + encodeURIComponent("Security posture audit for " + report.domain) +
-      "&body=" + encodeURIComponent("Hi Lance,\n\nI scanned " + report.domain + " and got " + report.score + "/100 (" + report.verdict + ").\n\nTop findings:\n" + (fixes ? decodeURIComponent(fixes) : "- No major findings") + "\n\nCan you help me harden this?");
+      "&body=" + encodeURIComponent("Hi Lance,\n\nI scanned " + report.domain + " and got " + report.score + "/100 (" + report.verdict + ").\n\nTop findings:\n" + (fixes || "- No major findings") + "\n\nCan you help me harden this?");
   }
 
   async function scanDomain() {
