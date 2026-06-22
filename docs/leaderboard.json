@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-15T12:30:01+00:00",
+  "generated_at": "2026-06-22T12:18:01+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
   "runs": 3,
@@ -18,19 +18,19 @@
       "agent": "Groq (via Axiom)",
       "provider": "llama-3.3-70b-versatile",
       "score": 90,
-      "verdict": "Reliable · 89–91",
+      "verdict": "Reliable · 89–93",
       "cost": "3× runs",
-      "latency": "643 ms",
+      "latency": "683 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 2
     },
     {
       "agent": "Gemini (via Axiom)",
       "provider": "gemini-3.5-flash",
-      "score": 89,
-      "verdict": "Watch",
+      "score": 88,
+      "verdict": "Watch · 87–89",
       "cost": "3× runs",
-      "latency": "8660 ms",
+      "latency": "9510 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 3
     },
@@ -40,7 +40,7 @@
       "score": 87,
       "verdict": "Watch",
       "cost": "3× runs",
-      "latency": "3256 ms",
+      "latency": "3092 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 4
     },
@@ -78,12 +78,12 @@
     },
     {
       "provider": "Gemini",
-      "status": "Scored · mean 89, consistent (3/3 runs)",
+      "status": "Scored · mean 88, range 87–89 (3/3 runs)",
       "probe_focus": "stale fact resistance, directness, citation honesty"
     },
     {
       "provider": "Groq",
-      "status": "Scored · mean 90, range 89–91 (3/3 runs)",
+      "status": "Scored · mean 90, range 89–93 (3/3 runs)",
       "probe_focus": "speed, completion quality, hallucinated capability claims"
     },
     {
