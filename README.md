@@ -1,5 +1,7 @@
 # Agent Reliability Arena
 
+[![CI](https://github.com/Lancimoun/agent-reliability-arena/actions/workflows/ci.yml/badge.svg)](https://github.com/Lancimoun/agent-reliability-arena/actions/workflows/ci.yml)
+
 Agent Reliability Arena is a small, dependency-light evaluation harness for AI agents.
 
 [Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Security field report](https://lancimoun.github.io/agent-reliability-arena/security.html) | [Leaderboard roadmap](ROADMAP.md) | [Case study](docs/case_study.md) | [Launch copy](docs/security_launch_copy.md)
