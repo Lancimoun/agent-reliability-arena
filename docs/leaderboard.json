@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-06T10:49:16+00:00",
+  "generated_at": "2026-07-13T09:41:41+00:00",
   "suite": "arena-v1",
   "probe_count": 5,
   "runs": 3,
@@ -15,32 +15,32 @@
       "rank": 1
     },
     {
-      "agent": "Gemini (via Axiom)",
-      "provider": "gemini-3.5-flash",
-      "score": 90,
-      "verdict": "Reliable · 89–91",
-      "cost": "3× runs",
-      "latency": "6830 ms",
-      "source": "Axiom · /benchmark/reliability",
-      "rank": 2
-    },
-    {
       "agent": "Groq (via Axiom)",
       "provider": "llama-3.3-70b-versatile",
       "score": 90,
       "verdict": "Reliable · 89–91",
       "cost": "3× runs",
-      "latency": "711 ms",
+      "latency": "769 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 2
+    },
+    {
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 89,
+      "verdict": "Watch",
+      "cost": "3× runs",
+      "latency": "16247 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 3
     },
     {
       "agent": "Claude (via Axiom)",
       "provider": "claude-haiku-4-5",
-      "score": 87,
-      "verdict": "Watch",
+      "score": 88,
+      "verdict": "Watch · 87–89",
       "cost": "3× runs",
-      "latency": "3132 ms",
+      "latency": "3216 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 4
     },
@@ -68,7 +68,7 @@
   "provider_queue": [
     {
       "provider": "Claude",
-      "status": "Scored · mean 87, consistent (3/3 runs)",
+      "status": "Scored · mean 88, range 87–89 (3/3 runs)",
       "probe_focus": "reasoning transparency, tool honesty, concise completion"
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "provider": "Gemini",
-      "status": "Scored · mean 90, range 89–91 (3/3 runs)",
+      "status": "Scored · mean 89, consistent (3/3 runs)",
       "probe_focus": "stale fact resistance, directness, citation honesty"
     },
     {
