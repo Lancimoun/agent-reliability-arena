@@ -70,7 +70,7 @@ Most demos show agents working once. Real systems need proof that they keep work
 Agent Reliability Arena gives you:
 
 - a public v0.2 transcript analyzer
-- a seed leaderboard for agent/model comparison
+- a multi-provider reliability leaderboard with score, cost, and latency
 - deterministic eval cases
 - transcript health checks
 - quality scores
@@ -95,18 +95,26 @@ The public demo now includes a browser-only analyzer:
 
 The analyzer runs locally in the browser. It does not send transcripts to a server.
 
-## v0.3 Direction: Reliability Leaderboard
+## v0.3: Reliability Leaderboard
 
-The next upgrade turns Arena into a comparison board:
+Arena runs the same probe suite across multiple model providers through [Axiom](https://github.com/Lancimoun/axiom-ai) and publishes the comparison on the live page. Each provider runs the 5-probe suite 3×; the published score is the mean, and the range is shown when it varied.
 
-1. Run the same reliability suite across agent endpoints or model providers.
-2. Score memory drift, stale facts, tool honesty, response completion, and decision transparency.
-3. Compare reliability score, cost, and latency.
-4. Publish a shareable HTML/PDF scorecard for portfolio posts and client audits.
+Snapshot of `docs/leaderboard.json` (generated 2026-07-13 — the [live board](https://lancimoun.github.io/agent-reliability-arena/) is the source of truth, since it refreshes on a weekly cron):
 
-The public page now includes a seed leaderboard with real deterministic Arena rows plus queued provider slots for Claude, GPT, Gemini, and Groq through Axiom. No provider score is claimed until a real run exists.
+| Agent | Model | Score | Latency |
+|---|---|---|---|
+| Foundation Reference Agent | Local deterministic suite | 100 | Local |
+| Groq (via Axiom) | llama-3.3-70b-versatile | 90 (89–91) | 769 ms |
+| Gemini (via Axiom) | gemini-3.5-flash | 89 (consistent) | 16247 ms |
+| Claude (via Axiom) | claude-haiku-4-5 | 88 (87–89) | 3216 ms |
+| Drift Demo Agent | Intentional failure sample | 40 | Local |
+| Maxima Live Eval | Railway import | auto-updates from trend | Daily |
 
-See [ROADMAP.md](ROADMAP.md) for the phased plan.
+Two slots stay honestly unscored rather than estimated: **GPT** (OpenAI quota/rate limit hit after retries) and **Maxima via Axiom** (`MAXIMA_BENCHMARK_URL` not configured — Maxima instead reports through its own live trend import).
+
+Scores are deterministic heuristic checks, not model-graded opinions, and no provider score is published until a real run exists. Refresh runs via [`leaderboard.yml`](.github/workflows/leaderboard.yml) (manual dispatch + weekly cron); provider keys live only in repo Secrets and are never printed.
+
+See [ROADMAP.md](ROADMAP.md) for what is shipped and what is still open.
 
 ## Quick Start
 
@@ -246,9 +254,13 @@ See [Audit Service Offer](docs/audit_service_offer.md) for marketplace copy.
 
 ## Roadmap
 
-- Add Axiom multi-provider runner for Claude, GPT, Gemini, Groq, and Maxima
-- Add cost and latency comparison
-- Add GitHub Actions regression checks and README badges
+Shipped: the Axiom multi-provider runner, cost/latency comparison, repeated-run variance reporting, and GitHub Actions regression checks with a README badge.
+
+Still open:
+
+- Expand the probe suite from 5 prompts toward 15–20 across the named failure modes
+- Score GPT (blocked on OpenAI quota) and configure Maxima's Axiom benchmark URL
+- Add an optional CI failure threshold so reliability regressions break the build
 - Add model-graded rubrics behind an optional API key
-- Add statistical rigor through repeated runs and variance reporting
+- Add adversarial prompt-injection and jailbreak probes
 - Add more live import adapters for other agent dashboards

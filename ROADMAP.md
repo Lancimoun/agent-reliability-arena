@@ -15,7 +15,7 @@ The long-term product loop:
 
 ## Phase 1 - Leaderboard V1
 
-Status: in progress.
+Status: shipped (2026-07).
 
 Ship a public comparison board on the GitHub Pages demo.
 
@@ -28,70 +28,66 @@ Scope:
 
 Done when:
 
-- The live page has a leaderboard section.
-- The board can update from static JSON.
-- No provider score is invented before a real run.
+- The live page has a leaderboard section. ✅
+- The board can update from static JSON. ✅ (`docs/leaderboard.json`)
+- No provider score is invented before a real run. ✅ (GPT and Maxima-via-Axiom stay unscored)
 
 ## Phase 2 - Axiom Multi-Provider Runner
 
-Status: planned.
+Status: shipped, with the probe suite still short of target.
 
-Use Axiom as the multi-provider gateway.
+Uses Axiom as the multi-provider gateway. `scripts/build_leaderboard.py` runs the suite through Axiom's `/benchmark/reliability`, normalizes results into the Arena report shape, and commits `docs/leaderboard.json` for the public page to render.
 
 Scope:
 
-- Create 15-20 probe prompts for known failure modes.
-- Run the same prompts through each provider.
-- Capture transcripts and raw responses.
-- Normalize results into the Arena report shape.
-- Render a public HTML/PDF scorecard.
+- Create 15-20 probe prompts for known failure modes. ⏳ **5 today** — the main open gap in this phase.
+- Run the same prompts through each provider. ✅
+- Capture transcripts and raw responses. ✅
+- Normalize results into the Arena report shape. ✅
+- Render a public HTML/PDF scorecard. ✅ HTML on the live page; PDF export not built.
 
 Target providers:
 
-- Claude
-- GPT
-- Gemini
-- Groq
-- Maxima
+- Claude ✅ scored
+- GPT ⏳ blocked on OpenAI quota/rate limit
+- Gemini ✅ scored
+- Groq ✅ scored
+- Maxima ⏳ `MAXIMA_BENCHMARK_URL` unset; reports via live trend import instead
 
 ## Phase 3 - Cost And Latency View
 
-Status: planned.
+Status: shipped.
 
-Reliability alone is not enough for business decisions.
+Reliability alone is not enough for business decisions. The board now carries cost and latency columns beside every score, which is what makes the spread legible: the fastest provider (Groq, 769 ms) and the slowest (Gemini, 16247 ms) sit within one point of each other on reliability.
 
 Scope:
 
-- Track estimated cost per run.
-- Track latency per provider.
-- Add a decision-grade view: reliability score x cost x speed.
-- Turn this into buying guidance for founders and teams.
+- Track estimated cost per run. ✅ (run count per provider)
+- Track latency per provider. ✅
+- Add a decision-grade view: reliability score x cost x speed. ✅ on the live board
+- Turn this into buying guidance for founders and teams. ⏳ the numbers are published; the written guidance is not
 
 ## Phase 4 - Developer Distribution
 
-Status: planned.
-
-Make the Arena useful inside real engineering workflows.
+Status: partially shipped.
 
 Scope:
 
-- GitHub Action that runs reliability checks on pull requests.
-- Optional failure threshold for regressions.
-- README badge that links back to the Arena.
-- Sample CI config for agent repos.
+- GitHub Action that runs reliability checks on pull requests. ✅ (`ci.yml` runs the foundation suite, drift demo, dashboards, and unit tests on push + PR)
+- Optional failure threshold for regressions. ⏳ CI runs the suite but does not yet fail the build on a score drop.
+- README badge that links back to the Arena. ✅
+- Sample CI config for agent repos. ⏳
 
 ## Phase 5 - Deeper Reliability Science
 
-Status: planned.
-
-Add stronger evaluation layers after the deterministic foundation is stable.
+Status: partially shipped.
 
 Scope:
 
-- Optional LLM-as-judge scoring behind API keys.
-- Adversarial prompt-injection and jailbreak probes.
-- Statistical rigor: run each case multiple times and report variance.
-- Named framework: Arena Reliability Spec.
+- Optional LLM-as-judge scoring behind API keys. ⏳
+- Adversarial prompt-injection and jailbreak probes. ⏳
+- Statistical rigor: run each case multiple times and report variance. ✅ every provider runs 3×; the board publishes mean and range.
+- Named framework: Arena Reliability Spec. ⏳
 
 ## Productized Offer
 
