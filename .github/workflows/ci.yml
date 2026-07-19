@@ -5,6 +5,15 @@ on:
   pull_request:
 
 jobs:
+  reusable-gate:
+    uses: ./.github/workflows/reliability-gate.yml
+    with:
+      cases_path: cases/maxima_foundation.json
+      transcript_path: examples/maxima_transcript_sample.jsonl
+      min_quality: 90
+      max_fail: 0
+      max_warn: 1
+
   quality:
     runs-on: ubuntu-latest
     steps:
