@@ -104,7 +104,7 @@ The analyzer runs locally in the browser. It does not send transcripts to a serv
 
 [`cases/maxima_foundation.json`](cases/maxima_foundation.json) now carries **15 provider-free reliability cases**, up from four. The pack covers current-truth override, decision transparency, tool honesty, completion, memory boundaries, prompt injection, secret handling, citation honesty, uncertainty calibration, action honesty, contradiction resolution, fail-closed provider behavior, idempotent retries, response-shape adherence, and evidence-before-completion claims.
 
-This is the local CI pack, not a retroactive provider score. The dated leaderboard below still reflects the last real paid Axiom comparison: five prompts, three runs per provider. The expanded cases will not change Claude, Gemini, or Groq's published scores until they are ported to Axiom and a new authenticated benchmark is actually run.
+This is the local CI pack, not a retroactive provider score. Axiom now mirrors all 15 cases and its authenticated runner can select any 1-15 of them, while retaining a five-case default to bound accidental provider spend. The dated leaderboard below still reflects the last real paid Axiom comparison: five prompts, three runs per provider. Claude, Gemini, and Groq's published scores will not change until a new authenticated benchmark is actually run.
 
 ## v0.3: Reliability Leaderboard
 
@@ -170,6 +170,33 @@ python -m agent_reliability_arena gate --report runs/drift.json --max-quality 50
 ```
 
 That negative control matters: CI fails if the known-bad fixture becomes healthy-looking, which catches an evaluator that was weakened or made too permissive.
+
+## Reusable GitHub Actions Gate
+
+Other agent repositories can use Arena as a pull-request check without copying its evaluator code or sharing secrets. Copy [`examples/github-actions/reliability-gate.yml`](examples/github-actions/reliability-gate.yml) into your repository at `.github/workflows/reliability-gate.yml`:
+
+```yaml
+name: Agent reliability
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  reliability:
+    uses: Lancimoun/agent-reliability-arena/.github/workflows/reliability-gate.yml@5f7ccac2d6d6c82ec6f3b8d3724a510692ab3cf8
+    with:
+      cases_path: reliability/cases.json
+      transcript_path: reliability/transcript.jsonl
+      min_quality: 90
+      max_fail: 0
+      max_warn: 1
+```
+
+Commit an Arena-compatible cases file at `reliability/cases.json`; [`cases/maxima_foundation.json`](cases/maxima_foundation.json) is the reference shape. The transcript is optional, but when supplied `reliability/transcript.jsonl` should follow [`examples/maxima_transcript_sample.jsonl`](examples/maxima_transcript_sample.jsonl). The workflow checks out the caller and a separately pinned Arena evaluator, writes a JSON report, enforces the requested thresholds, and uploads the report even when the gate fails. Its full commit-SHA pin is deliberate: review and update that pin explicitly when adopting a newer Arena workflow release.
 
 Import a live Maxima Eval Lab report:
 
@@ -279,13 +306,11 @@ See [Audit Service Offer](docs/audit_service_offer.md) for marketplace copy.
 
 ## Roadmap
 
-Shipped: the Axiom multi-provider runner, cost/latency comparison, repeated-run variance reporting, GitHub Actions regression checks with a README badge, and a 15-case provider-free foundation pack.
+Shipped: the Axiom multi-provider runner, cost/latency comparison, repeated-run variance reporting, GitHub Actions regression checks with a README badge, a reusable SHA-pinned workflow for other agent repositories, and a 15-case provider-free foundation pack mirrored into Axiom's selectable catalog.
 
 Still open:
 
-- Port the 15 local foundation cases into Axiom's live multi-provider suite (the dated public comparison remains five prompts until a real rerun)
 - Score GPT (blocked on OpenAI quota) and configure Maxima's Axiom benchmark URL
-- Expand the shipped CI threshold into a reusable sample workflow for other agent repositories
 - Add model-graded rubrics behind an optional API key
 - Add adversarial prompt-injection and jailbreak probes
 - Add more live import adapters for other agent dashboards

@@ -1,0 +1,20 @@
+name: Agent reliability
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  reliability:
+    # Copy this file into your repository, then point these paths at your
+    # Arena-compatible cases JSON and optional transcript JSONL fixtures.
+    uses: Lancimoun/agent-reliability-arena/.github/workflows/reliability-gate.yml@5f7ccac2d6d6c82ec6f3b8d3724a510692ab3cf8
+    with:
+      cases_path: reliability/cases.json
+      transcript_path: reliability/transcript.jsonl
+      min_quality: 90
+      max_fail: 0
+      max_warn: 1

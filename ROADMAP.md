@@ -34,14 +34,14 @@ Done when:
 
 ## Phase 2 - Axiom Multi-Provider Runner
 
-Status: local deterministic target reached; live multi-provider suite still short of target.
+Status: 15-case local and Axiom catalogs shipped; the dated paid provider comparison still awaits a full rerun.
 
 Uses Axiom as the multi-provider gateway. `scripts/build_leaderboard.py` runs the suite through Axiom's `/benchmark/reliability`, normalizes results into the Arena report shape, and commits `docs/leaderboard.json` for the public page to render.
 
 Scope:
 
 - Create 15-20 provider-free cases for known failure modes. ✅ **15 local foundation cases** in `cases/maxima_foundation.json`.
-- Port the expanded pack into Axiom's authenticated multi-provider runner. ⏳ **5 live prompts today** — the dated public provider scores remain unchanged until a real rerun.
+- Port the expanded pack into Axiom's authenticated multi-provider runner. ✅ **15 selectable Axiom cases**; the default remains five to bound accidental provider spend, and the dated public provider scores remain unchanged until a real rerun.
 - Run the same prompts through each provider. ✅
 - Capture transcripts and raw responses. ✅
 - Normalize results into the Arena report shape. ✅
@@ -77,7 +77,7 @@ Scope:
 - GitHub Action that runs reliability checks on pull requests. ✅ (`ci.yml` runs the foundation suite, drift demo, dashboards, and unit tests on push + PR)
 - Optional failure threshold for regressions. ✅ `gate` enforces foundation quality ≥90, zero hard failures, and at most one warning. CI also requires the intentional drift canary to stay ≤50 with at least one hard failure, so a permissive evaluator cannot earn a false green build.
 - README badge that links back to the Arena. ✅
-- Sample CI config for agent repos. ⏳
+- Sample CI config for agent repos. ✅ Reusable, least-privilege workflow plus a full-SHA-pinned caller at `examples/github-actions/reliability-gate.yml`.
 
 ## Phase 5 - Deeper Reliability Science
 

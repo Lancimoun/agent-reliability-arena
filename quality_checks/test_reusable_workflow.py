@@ -6,6 +6,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "reliability-gate.yml"
 ENGINE_SHA = "aa1f1a220171559afa3e67363891afce9284faeb"
+CALLER_EXAMPLE = ROOT / "examples" / "github-actions" / "reliability-gate.yml"
+WORKFLOW_RELEASE_SHA = "5f7ccac2d6d6c82ec6f3b8d3724a510692ab3cf8"
 
 
 class ReusableWorkflowTests(unittest.TestCase):
@@ -54,6 +56,43 @@ class ReusableWorkflowTests(unittest.TestCase):
         self.assertNotRegex(
             self.workflow,
             r"Lancimoun/agent-reliability-arena(?:\.git)?@(?:main|master)",
+        )
+
+
+class ReusableWorkflowExampleTests(unittest.TestCase):
+    def test_copyable_caller_is_pinned_documented_and_secret_free(self):
+        caller = CALLER_EXAMPLE.read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        roadmap = (ROOT / "ROADMAP.md").read_text(encoding="utf-8")
+        reusable_ref = (
+            "uses: Lancimoun/agent-reliability-arena/"
+            ".github/workflows/reliability-gate.yml@"
+            f"{WORKFLOW_RELEASE_SHA}"
+        )
+
+        self.assertRegex(caller, r"(?m)^  (?:push|pull_request):")
+        self.assertIn("  pull_request:", caller)
+        self.assertIn(reusable_ref, caller)
+        self.assertRegex(caller, r"(?m)reliability-gate\.yml@[0-9a-f]{40}$")
+        self.assertNotIn("secrets: inherit", caller)
+        self.assertNotIn("secrets:", caller)
+        for setting in (
+            "cases_path:",
+            "transcript_path:",
+            "min_quality:",
+            "max_fail:",
+            "max_warn:",
+        ):
+            with self.subTest(setting=setting):
+                self.assertIn(setting, caller)
+
+        self.assertIn("examples/github-actions/reliability-gate.yml", readme)
+        self.assertIn("reliability/cases.json", readme)
+        self.assertIn("reliability/transcript.jsonl", readme)
+        self.assertIn(reusable_ref, readme)
+        self.assertRegex(
+            roadmap,
+            r"Sample CI config for agent repos\. .*✅",
         )
 
 
