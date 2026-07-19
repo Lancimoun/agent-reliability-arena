@@ -34,13 +34,14 @@ Done when:
 
 ## Phase 2 - Axiom Multi-Provider Runner
 
-Status: shipped, with the probe suite still short of target.
+Status: local deterministic target reached; live multi-provider suite still short of target.
 
 Uses Axiom as the multi-provider gateway. `scripts/build_leaderboard.py` runs the suite through Axiom's `/benchmark/reliability`, normalizes results into the Arena report shape, and commits `docs/leaderboard.json` for the public page to render.
 
 Scope:
 
-- Create 15-20 probe prompts for known failure modes. ⏳ **5 today** — the main open gap in this phase.
+- Create 15-20 provider-free cases for known failure modes. ✅ **15 local foundation cases** in `cases/maxima_foundation.json`.
+- Port the expanded pack into Axiom's authenticated multi-provider runner. ⏳ **5 live prompts today** — the dated public provider scores remain unchanged until a real rerun.
 - Run the same prompts through each provider. ✅
 - Capture transcripts and raw responses. ✅
 - Normalize results into the Arena report shape. ✅

@@ -14,8 +14,27 @@ from agent_reliability_arena.core import (
     threshold_violations,
 )
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 class CoreTests(unittest.TestCase):
+    def test_foundation_pack_covers_fifteen_named_failure_modes(self):
+        report = run_arena(ROOT / "cases" / "maxima_foundation.json")
+        names = {case["name"] for case in report["cases"]}
+
+        self.assertEqual(report["summary"]["total"], 15)
+        self.assertEqual(report["summary"]["quality_score"], 100)
+        self.assertEqual(report["summary"]["fail"], 0)
+        self.assertEqual(report["summary"]["warn"], 0)
+        self.assertEqual(len(names), 15)
+        self.assertTrue({
+            "Memory boundary: admit an unknown",
+            "Prompt injection resistance",
+            "Sensitive-data boundary",
+            "Citation honesty without sources",
+            "Uncertainty calibration",
+        }.issubset(names))
+
     def test_current_truth_case_passes(self):
         case = {
             "name": "truth",

@@ -11,10 +11,15 @@ Agent Reliability Arena is a small, dependency-light evaluation harness for AI a
 It tests the practical failures that make agent products feel unreliable:
 
 - stale memory stated as current truth
+- invented memories when evidence is absent
 - incomplete replies
 - overlong responses
 - missing reasoning on complex recommendations
 - tool capability hallucinations
+- prompt injection and secret-exposure pressure
+- fabricated citations and unsupported certainty
+- malformed-provider fail-open behavior
+- duplicate side effects on retried work
 - weak transcript health
 - current-truth override failures
 
@@ -94,6 +99,12 @@ The public demo now includes a browser-only analyzer:
 4. Download a JSON report.
 
 The analyzer runs locally in the browser. It does not send transcripts to a server.
+
+## v0.4: 15-case deterministic foundation pack
+
+[`cases/maxima_foundation.json`](cases/maxima_foundation.json) now carries **15 provider-free reliability cases**, up from four. The pack covers current-truth override, decision transparency, tool honesty, completion, memory boundaries, prompt injection, secret handling, citation honesty, uncertainty calibration, action honesty, contradiction resolution, fail-closed provider behavior, idempotent retries, response-shape adherence, and evidence-before-completion claims.
+
+This is the local CI pack, not a retroactive provider score. The dated leaderboard below still reflects the last real paid Axiom comparison: five prompts, three runs per provider. The expanded cases will not change Claude, Gemini, or Groq's published scores until they are ported to Axiom and a new authenticated benchmark is actually run.
 
 ## v0.3: Reliability Leaderboard
 
@@ -268,11 +279,11 @@ See [Audit Service Offer](docs/audit_service_offer.md) for marketplace copy.
 
 ## Roadmap
 
-Shipped: the Axiom multi-provider runner, cost/latency comparison, repeated-run variance reporting, and GitHub Actions regression checks with a README badge.
+Shipped: the Axiom multi-provider runner, cost/latency comparison, repeated-run variance reporting, GitHub Actions regression checks with a README badge, and a 15-case provider-free foundation pack.
 
 Still open:
 
-- Expand the probe suite from 5 prompts toward 15–20 across the named failure modes
+- Port the 15 local foundation cases into Axiom's live multi-provider suite (the dated public comparison remains five prompts until a real rerun)
 - Score GPT (blocked on OpenAI quota) and configure Maxima's Axiom benchmark URL
 - Expand the shipped CI threshold into a reusable sample workflow for other agent repositories
 - Add model-graded rubrics behind an optional API key
