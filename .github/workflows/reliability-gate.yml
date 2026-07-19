@@ -62,12 +62,10 @@ jobs:
         with:
           python-version: ${{ inputs.python_version }}
 
-      - name: Install pinned Arena evaluator
-        run: python -m pip install ./.arena-engine
-
       - name: Build reliability report
         shell: bash
         env:
+          PYTHONPATH: .arena-engine
           CASES_PATH: ${{ inputs.cases_path }}
           TRANSCRIPT_PATH: ${{ inputs.transcript_path }}
           REPORT_PATH: ${{ inputs.report_path }}
@@ -83,6 +81,7 @@ jobs:
 
       - name: Enforce reliability threshold
         env:
+          PYTHONPATH: .arena-engine
           REPORT_PATH: ${{ inputs.report_path }}
           MIN_QUALITY: ${{ inputs.min_quality }}
           MAX_FAIL: ${{ inputs.max_fail }}
