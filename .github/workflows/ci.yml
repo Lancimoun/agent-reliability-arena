@@ -16,6 +16,10 @@ jobs:
         run: python -m agent_reliability_arena run --cases cases/maxima_foundation.json --transcript examples/maxima_transcript_sample.jsonl --out runs/latest.json
       - name: Run drift demo
         run: python -m agent_reliability_arena run --cases cases/drift_demo.json --transcript examples/drift_transcript_sample.jsonl --out runs/drift.json
+      - name: Enforce foundation reliability threshold
+        run: python -m agent_reliability_arena gate --report runs/latest.json --min-quality 90 --max-fail 0 --max-warn 1
+      - name: Enforce drift canary remains detectable
+        run: python -m agent_reliability_arena gate --report runs/drift.json --max-quality 50 --min-fail 1
       - name: Generate dashboards
         run: |
           python -m agent_reliability_arena dashboard --report runs/latest.json --out runs/dashboard.html

@@ -74,7 +74,7 @@ Status: partially shipped.
 Scope:
 
 - GitHub Action that runs reliability checks on pull requests. ✅ (`ci.yml` runs the foundation suite, drift demo, dashboards, and unit tests on push + PR)
-- Optional failure threshold for regressions. ⏳ CI runs the suite but does not yet fail the build on a score drop.
+- Optional failure threshold for regressions. ✅ `gate` enforces foundation quality ≥90, zero hard failures, and at most one warning. CI also requires the intentional drift canary to stay ≤50 with at least one hard failure, so a permissive evaluator cannot earn a false green build.
 - README badge that links back to the Arena. ✅
 - Sample CI config for agent repos. ⏳
 

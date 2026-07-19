@@ -250,6 +250,47 @@ def _summary(case_results: list[dict[str, Any]], transcript: dict[str, Any]) -> 
     }
 
 
+def threshold_violations(
+    report: dict[str, Any],
+    *,
+    min_quality: int | None = None,
+    max_quality: int | None = None,
+    min_fail: int | None = None,
+    max_fail: int | None = None,
+    max_warn: int | None = None,
+) -> list[str]:
+    """Return deterministic gate violations for an Arena report.
+
+    Both lower and upper bounds matter. A positive fixture should stay healthy;
+    a known-bad fixture should stay detectably bad so a permissive evaluator
+    cannot turn CI green by ceasing to catch failures.
+    """
+    summary = report.get("summary")
+    if not isinstance(summary, dict):
+        summary = {}
+
+    limits = (
+        ("quality_score", min_quality, "min"),
+        ("quality_score", max_quality, "max"),
+        ("fail", min_fail, "min"),
+        ("fail", max_fail, "max"),
+        ("warn", max_warn, "max"),
+    )
+    violations = []
+    for metric, limit, direction in limits:
+        if limit is None:
+            continue
+        value = summary.get(metric)
+        if not isinstance(value, int) or isinstance(value, bool):
+            violations.append(f"summary metric {metric} is missing or not an integer")
+            continue
+        if direction == "min" and value < limit:
+            violations.append(f"{metric} {value} is below minimum {limit}")
+        elif direction == "max" and value > limit:
+            violations.append(f"{metric} {value} exceeds maximum {limit}")
+    return violations
+
+
 def run_arena(cases_path: Path, transcript_path: Path | None = None) -> dict[str, Any]:
     cases = _load_cases(cases_path)
     case_results = [evaluate_case(case) for case in cases]

@@ -146,6 +146,20 @@ Generate a dashboard:
 python -m agent_reliability_arena dashboard --report runs/latest.json --out runs/dashboard.html
 ```
 
+Gate a report in CI:
+
+```powershell
+python -m agent_reliability_arena gate --report runs/latest.json --min-quality 90 --max-fail 0 --max-warn 1
+```
+
+The repository CI also gates the intentional drift report in the opposite direction:
+
+```powershell
+python -m agent_reliability_arena gate --report runs/drift.json --max-quality 50 --min-fail 1
+```
+
+That negative control matters: CI fails if the known-bad fixture becomes healthy-looking, which catches an evaluator that was weakened or made too permissive.
+
 Import a live Maxima Eval Lab report:
 
 ```powershell
@@ -260,7 +274,7 @@ Still open:
 
 - Expand the probe suite from 5 prompts toward 15–20 across the named failure modes
 - Score GPT (blocked on OpenAI quota) and configure Maxima's Axiom benchmark URL
-- Add an optional CI failure threshold so reliability regressions break the build
+- Expand the shipped CI threshold into a reusable sample workflow for other agent repositories
 - Add model-graded rubrics behind an optional API key
 - Add adversarial prompt-injection and jailbreak probes
 - Add more live import adapters for other agent dashboards

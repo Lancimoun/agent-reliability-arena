@@ -11,6 +11,7 @@ from agent_reliability_arena.core import (
     load_trend,
     report_from_maxima_payload,
     run_arena,
+    threshold_violations,
 )
 
 
@@ -109,6 +110,49 @@ class CoreTests(unittest.TestCase):
             self.assertIn("Daily Reliability Trend", html)
             self.assertNotIn("secret", json.dumps(loaded))
             self.assertEqual(loaded["entries"][0]["source_url"], "https://example.test/eval-lab.json")
+
+    def test_threshold_accepts_foundation_baseline(self):
+        report = {"summary": {"quality_score": 100, "fail": 0, "warn": 0}}
+        violations = threshold_violations(
+            report,
+            min_quality=90,
+            max_fail=0,
+            max_warn=1,
+        )
+        self.assertEqual(violations, [])
+
+    def test_threshold_rejects_foundation_regression(self):
+        report = {"summary": {"quality_score": 70, "fail": 2, "warn": 3}}
+        violations = threshold_violations(
+            report,
+            min_quality=90,
+            max_fail=0,
+            max_warn=1,
+        )
+        self.assertEqual(len(violations), 3)
+        self.assertTrue(any("quality_score 70" in item for item in violations))
+        self.assertTrue(any("fail 2" in item for item in violations))
+        self.assertTrue(any("warn 3" in item for item in violations))
+
+    def test_threshold_keeps_negative_control_detectable(self):
+        known_bad = {"summary": {"quality_score": 40, "fail": 1, "warn": 4}}
+        self.assertEqual(
+            threshold_violations(known_bad, max_quality=50, min_fail=1),
+            [],
+        )
+
+        permissive_evaluator = {"summary": {"quality_score": 80, "fail": 0, "warn": 2}}
+        violations = threshold_violations(
+            permissive_evaluator,
+            max_quality=50,
+            min_fail=1,
+        )
+        self.assertEqual(len(violations), 2)
+
+    def test_threshold_fails_closed_on_missing_summary_metrics(self):
+        violations = threshold_violations({}, min_quality=90, max_fail=0)
+        self.assertEqual(len(violations), 2)
+        self.assertTrue(all("missing" in item for item in violations))
 
 
 if __name__ == "__main__":
