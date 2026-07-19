@@ -1,0 +1,103 @@
+name: Agent Reliability Gate
+
+on:
+  workflow_call:
+    inputs:
+      cases_path:
+        description: Path to the caller repository's Arena cases JSON file
+        required: true
+        type: string
+      transcript_path:
+        description: Optional path to the caller repository's transcript JSONL file
+        required: false
+        default: ""
+        type: string
+      report_path:
+        description: Path where the JSON reliability report will be written
+        required: false
+        default: ".arena/report.json"
+        type: string
+      python_version:
+        description: Python version used to run the evaluator
+        required: false
+        default: "3.12"
+        type: string
+      min_quality:
+        description: Minimum aggregate quality score required to pass
+        required: false
+        default: 90
+        type: number
+      max_fail:
+        description: Maximum number of failed cases allowed
+        required: false
+        default: 0
+        type: number
+      max_warn:
+        description: Maximum number of warning cases allowed
+        required: false
+        default: 0
+        type: number
+
+permissions:
+  contents: read
+
+jobs:
+  reliability:
+    name: Reliability gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@v6
+
+      - name: Checkout pinned Arena evaluator
+        uses: actions/checkout@v6
+        with:
+          repository: Lancimoun/agent-reliability-arena
+          ref: aa1f1a220171559afa3e67363891afce9284faeb
+          path: .arena-engine
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install pinned Arena evaluator
+        run: python -m pip install ./.arena-engine
+
+      - name: Build reliability report
+        shell: bash
+        env:
+          CASES_PATH: ${{ inputs.cases_path }}
+          TRANSCRIPT_PATH: ${{ inputs.transcript_path }}
+          REPORT_PATH: ${{ inputs.report_path }}
+        run: |
+          transcript_args=()
+          if [[ -n "$TRANSCRIPT_PATH" ]]; then
+            transcript_args=(--transcript "$TRANSCRIPT_PATH")
+          fi
+          python -m agent_reliability_arena run \
+            --cases "$CASES_PATH" \
+            "${transcript_args[@]}" \
+            --out "$REPORT_PATH"
+
+      - name: Enforce reliability threshold
+        env:
+          REPORT_PATH: ${{ inputs.report_path }}
+          MIN_QUALITY: ${{ inputs.min_quality }}
+          MAX_FAIL: ${{ inputs.max_fail }}
+          MAX_WARN: ${{ inputs.max_warn }}
+        run: >-
+          python -m agent_reliability_arena gate
+          --report "$REPORT_PATH"
+          --min-quality "$MIN_QUALITY"
+          --max-fail "$MAX_FAIL"
+          --max-warn "$MAX_WARN"
+
+      - name: Upload reliability report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-reliability-report
+          path: ${{ inputs.report_path }}
+          if-no-files-found: warn
