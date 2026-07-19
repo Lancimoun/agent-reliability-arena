@@ -187,7 +187,7 @@ permissions:
 
 jobs:
   reliability:
-    uses: Lancimoun/agent-reliability-arena/.github/workflows/reliability-gate.yml@5f7ccac2d6d6c82ec6f3b8d3724a510692ab3cf8
+    uses: Lancimoun/agent-reliability-arena/.github/workflows/reliability-gate.yml@cdee4356844bf52cc2217483dd2b212810a77d78
     with:
       cases_path: reliability/cases.json
       transcript_path: reliability/transcript.jsonl

@@ -8,7 +8,7 @@ WORKFLOW = ROOT / ".github" / "workflows" / "reliability-gate.yml"
 ENGINE_SHA = "aa1f1a220171559afa3e67363891afce9284faeb"
 CALLER_EXAMPLE = ROOT / "examples" / "github-actions" / "reliability-gate.yml"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
-WORKFLOW_RELEASE_SHA = "5f7ccac2d6d6c82ec6f3b8d3724a510692ab3cf8"
+WORKFLOW_RELEASE_SHA = "cdee4356844bf52cc2217483dd2b212810a77d78"
 
 
 class ReusableWorkflowTests(unittest.TestCase):
