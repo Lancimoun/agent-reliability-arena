@@ -1021,6 +1021,14 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
 </main>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
+  /* This page runs three independent animation loops (two Three.js scenes and a
+     canvas constellation) and honoured `prefers-reduced-motion` in none of them.
+     That setting is not a preference about taste — it is how a visitor with a
+     vestibular disorder tells every site on their machine that continuous motion
+     makes them ill. A shared flag so all three loops read the same answer. */
+  window.arenaReduceMotion = !!(window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
   (function initArenaCore3D() {
     const canvas = document.getElementById("arena-core-3d");
     const shell = canvas && canvas.closest(".arena-core-shell");
@@ -1115,10 +1123,15 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
     }
 
     function animate() {
-      requestAnimationFrame(animate);
-      /* This page runs three render loops at once (two WebGL scenes and a canvas
-         particle field). A backgrounded tab should not pay for any of them. */
-      if (document.hidden) return;
+      /* Under reduced motion this renders exactly one frame and stops, leaving a
+         still image rather than a stalled animation.
+         The `document.hidden` check is a belt-and-braces saving, not the main
+         event: Chrome already throttles rAF in a background tab to near zero
+         (measured on this page in a real browser — 1 frame in 22 seconds). It is
+         skipped under reduced motion so the single frame is never lost to a tab
+         that happened to load in the background. */
+      if (!window.arenaReduceMotion) requestAnimationFrame(animate);
+      if (document.hidden && !window.arenaReduceMotion) return;
       const t = performance.now() * 0.001;
       core.rotation.x = t * 0.22;
       core.rotation.y = t * 0.28;
@@ -1228,8 +1241,8 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
       }, { passive: true });
 
       function animateWebGL() {
-        requestAnimationFrame(animateWebGL);
-        if (document.hidden) return;
+        if (!window.arenaReduceMotion) requestAnimationFrame(animateWebGL);
+        if (document.hidden && !window.arenaReduceMotion) return;
         const time = performance.now() * 0.001;
         for (let i = 0; i < count; i++) {
           const i3 = i * 3;
@@ -1304,7 +1317,7 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
     }
 
     function tick() {
-      if (document.hidden) { requestAnimationFrame(tick); return; }
+      if (document.hidden && !window.arenaReduceMotion) { requestAnimationFrame(tick); return; }
       ctx.clearRect(0, 0, width, height);
       for (const p of particles) {
         p.x += p.vx;
@@ -1316,7 +1329,7 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
         drawShape(p);
       }
       ctx.globalAlpha = 1;
-      requestAnimationFrame(tick);
+      if (!window.arenaReduceMotion) requestAnimationFrame(tick);
     }
 
     resize();
