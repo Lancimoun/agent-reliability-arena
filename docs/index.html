@@ -1116,6 +1116,9 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
 
     function animate() {
       requestAnimationFrame(animate);
+      /* This page runs three render loops at once (two WebGL scenes and a canvas
+         particle field). A backgrounded tab should not pay for any of them. */
+      if (document.hidden) return;
       const t = performance.now() * 0.001;
       core.rotation.x = t * 0.22;
       core.rotation.y = t * 0.28;
@@ -1226,6 +1229,7 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
 
       function animateWebGL() {
         requestAnimationFrame(animateWebGL);
+        if (document.hidden) return;
         const time = performance.now() * 0.001;
         for (let i = 0; i < count; i++) {
           const i3 = i * 3;
@@ -1300,6 +1304,7 @@ python -m agent_reliability_arena dashboard --report runs/latest.json --out runs
     }
 
     function tick() {
+      if (document.hidden) { requestAnimationFrame(tick); return; }
       ctx.clearRect(0, 0, width, height);
       for (const p of particles) {
         p.x += p.vx;
