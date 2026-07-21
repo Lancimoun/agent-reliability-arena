@@ -297,7 +297,7 @@
         <div class="toolbar">
           <button class="btn" id="downloadDomainReportBtn" type="button">Download DNS report</button>
           <button class="btn" id="copyDomainReportBtn" type="button">Copy fix plan</button>
-          <a class="btn green" id="emailDomainReportBtn" href="mailto:lancejilliard.galicia@gmail.com?subject=Security%20Posture%20Audit&body=Hi%20Lance%2C%20I%20want%20help%20reviewing%20my%20email%20security%20posture.">Ask Lance to audit</a>
+          <a class="btn green" id="emailDomainReportBtn" href="mailto:lancejilliard.galicia@gmail.com?subject=Security%20Posture%20Audit&body=Hi%20there%2C%20I%20want%20help%20reviewing%20my%20email%20security%20posture.">Ask for a security audit</a>
         </div>
       </div>
       <div class="panel result">
@@ -390,7 +390,7 @@
   <section class="cta" id="hire">
     <div class="eyebrow">Build with someone who's been tested</div>
     <h2>I build AI systems — security-first now, not by accident.</h2>
-    <p>I'm Lance, the engineer behind the Agent Reliability Arena. I build and harden AI chatbots, RAG apps, and agents — and after running a real incident response, security is part of how I build, not an afterthought. Same discipline either way: assume things fail, hunt the hidden failure mode, verify the fix.</p>
+    <p>I'm Architect L., the engineer behind the Agent Reliability Arena. I build and harden AI chatbots, RAG apps, and agents — and after running a real incident response, security is part of how I build, not an afterthought. Same discipline either way: assume things fail, hunt the hidden failure mode, verify the fix.</p>
     <div class="cta-actions">
       <a class="btn green" href="https://www.upwork.com/freelancers/~01619d508090fd5195" target="_blank" rel="noopener">Hire me on Upwork</a>
       <a class="btn" href="checker.html">Try the Reliability Checker</a>
@@ -399,7 +399,7 @@
   </section>
 
   <footer>
-    Built by Lance Jilliard Galicia · FORGE. A real incident, fully sanitized — no names, exact amounts, account numbers, or case references appear here. Educational only; not legal, financial, or professional security advice. Deterministic, dependency-free, runs entirely in your browser.
+    Built by Architect L. · FORGE. A real incident, fully sanitized — no names, exact amounts, account numbers, or case references appear here. Educational only; not legal, financial, or professional security advice. Deterministic, dependency-free, runs entirely in your browser.
   </footer>
 </main>
 <script>
@@ -692,7 +692,7 @@
     var fixes = report.findings.filter(function (f) { return f.kind !== "pass"; }).slice(0, 5).map(function (f) { return "- " + f.title + ": " + f.text; }).join("\n");
     document.getElementById("emailDomainReportBtn").href =
       "mailto:lancejilliard.galicia@gmail.com?subject=" + encodeURIComponent("Security posture audit for " + report.domain) +
-      "&body=" + encodeURIComponent("Hi Lance,\n\nI scanned " + report.domain + " and got " + report.score + "/100 (" + report.verdict + ").\n\nTop findings:\n" + (fixes || "- No major findings") + "\n\nCan you help me harden this?");
+      "&body=" + encodeURIComponent("Hi there,\n\nI scanned " + report.domain + " and got " + report.score + "/100 (" + report.verdict + ").\n\nTop findings:\n" + (fixes || "- No major findings") + "\n\nCan you help me harden this?");
   }
 
   async function scanDomain() {
