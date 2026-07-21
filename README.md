@@ -1,14 +1,27 @@
-# Agent Reliability Arena
+<h1 align="center">Agent Reliability Arena</h1>
+<p align="center"><strong>A small, dependency-light evaluation harness for AI agents.</strong><br/>
+It tests the practical failures that make agent products feel unreliable — stale memory, invented recall, unsupported tool claims, incomplete replies, transcript drift.</p>
 
-[![CI](https://github.com/Lancimoun/agent-reliability-arena/actions/workflows/ci.yml/badge.svg)](https://github.com/Lancimoun/agent-reliability-arena/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://github.com/Lancimoun/agent-reliability-arena/actions/workflows/ci.yml"><img src="https://github.com/Lancimoun/agent-reliability-arena/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11+">
+  <img src="https://img.shields.io/badge/dependencies-light-5ed7bd?style=flat-square" alt="Dependency-light">
+  <img src="https://img.shields.io/badge/GitHub%20Pages-live-222222?style=flat-square&logo=github&logoColor=white" alt="GitHub Pages">
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT">
+</p>
 
-Agent Reliability Arena is a small, dependency-light evaluation harness for AI agents.
+<p align="center">
+  <a href="https://lancimoun.github.io/agent-reliability-arena/"><strong>▶ Live demo + transcript analyzer</strong></a> ·
+  <a href="https://lancimoun.github.io/agent-reliability-arena/security.html">Security field report</a> ·
+  <a href="ROADMAP.md">Roadmap</a> ·
+  <a href="docs/case_study.md">Case study</a>
+</p>
 
-[Live demo + transcript analyzer](https://lancimoun.github.io/agent-reliability-arena/) | [Security field report](https://lancimoun.github.io/agent-reliability-arena/security.html) | [Leaderboard roadmap](ROADMAP.md) | [Case study](docs/case_study.md) | [Launch copy](docs/security_launch_copy.md)
+---
 
 ![Agent Reliability Arena dashboard](docs/assets/dashboard.png)
 
-It tests the practical failures that make agent products feel unreliable:
+The full set of failure modes it checks:
 
 - stale memory stated as current truth
 - invented memories when evidence is absent
