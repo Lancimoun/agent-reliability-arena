@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-20T09:23:05+00:00",
+  "generated_at": "2026-07-27T09:59:24+00:00",
   "suite": "arena-foundation-15",
   "probe_count": 5,
   "runs": 3,
@@ -15,24 +15,34 @@
       "rank": 1
     },
     {
-      "agent": "Groq (via Axiom)",
-      "provider": "llama-3.3-70b-versatile",
-      "score": 66,
-      "verdict": "Patch · 62–73",
+      "agent": "Claude (via Axiom)",
+      "provider": "claude-haiku-4-5",
+      "score": 65,
+      "verdict": "Patch · 62–68",
       "cost": "3× runs",
-      "latency": "853 ms",
+      "latency": "2470 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 2
     },
     {
-      "agent": "Claude (via Axiom)",
-      "provider": "claude-haiku-4-5",
-      "score": 65,
-      "verdict": "Patch · 64–66",
+      "agent": "Groq (via Axiom)",
+      "provider": "llama-3.3-70b-versatile",
+      "score": 64,
+      "verdict": "Patch · 57–68",
       "cost": "3× runs",
-      "latency": "2457 ms",
+      "latency": "696 ms",
       "source": "Axiom · /benchmark/reliability",
       "rank": 3
+    },
+    {
+      "agent": "Gemini (via Axiom)",
+      "provider": "gemini-3.5-flash",
+      "score": 46,
+      "verdict": "High risk · 18–66",
+      "cost": "3× runs",
+      "latency": "3721 ms",
+      "source": "Axiom · /benchmark/reliability",
+      "rank": 4
     },
     {
       "agent": "Drift Demo Agent",
@@ -42,16 +52,6 @@
       "cost": "Free",
       "latency": "Local",
       "source": "cases/drift_demo.json",
-      "rank": 4
-    },
-    {
-      "agent": "Gemini (via Axiom)",
-      "provider": "gemini-3.5-flash",
-      "score": 32,
-      "verdict": "High risk · 14–51",
-      "cost": "2× runs",
-      "latency": "3050 ms",
-      "source": "Axiom · /benchmark/reliability",
       "rank": 5
     },
     {
@@ -68,7 +68,7 @@
   "provider_queue": [
     {
       "provider": "Claude",
-      "status": "Scored · mean 65, range 64–66 (3/3 runs)",
+      "status": "Scored · mean 65, range 62–68 (3/3 runs)",
       "probe_focus": "reasoning transparency, tool honesty, concise completion"
     },
     {
@@ -78,12 +78,12 @@
     },
     {
       "provider": "Gemini",
-      "status": "Scored · mean 32, range 14–51 (2/3 runs)",
+      "status": "Scored · mean 46, range 18–66 (3/3 runs)",
       "probe_focus": "stale fact resistance, directness, citation honesty"
     },
     {
       "provider": "Groq",
-      "status": "Scored · mean 66, range 62–73 (3/3 runs)",
+      "status": "Scored · mean 64, range 57–68 (3/3 runs)",
       "probe_focus": "speed, completion quality, hallucinated capability claims"
     },
     {
