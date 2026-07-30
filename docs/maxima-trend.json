@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T06:14:22+00:00",
+  "generated_at": "2026-07-30T06:07:29+00:00",
   "entries": [
     {
       "run_id": "d4d1030c-d0cd-4a3d-8c7b-fdac0e36b652",
@@ -690,6 +690,20 @@
     {
       "run_id": "1ba54322-4259-4bf0-8d33-352b0fe33bf0",
       "generated_at": "2026-07-29T06:14:22+00:00",
+      "quality_score": 83,
+      "source_quality_score": 98,
+      "verdict": "ship",
+      "pass": 2,
+      "warn": 1,
+      "fail": 0,
+      "source_type": "maxima_eval_lab_json",
+      "source_url": "https://maxima-v3-production.up.railway.app/eval-lab.json",
+      "source_status": "",
+      "source_quality": 98
+    },
+    {
+      "run_id": "3e4bea6a-5e3e-4e97-a5dd-7f4bd3296745",
+      "generated_at": "2026-07-30T06:07:29+00:00",
       "quality_score": 83,
       "source_quality_score": 98,
       "verdict": "ship",
