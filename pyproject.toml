@@ -5,7 +5,7 @@ description = "Dependency-light eval harness for AI agent reliability, memory dr
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-  { name = "Lance Jilliard Galicia" }
+  { name = "Architect L." }
 ]
 dependencies = []
 
